@@ -1,0 +1,173 @@
+<div class="accordion" id="accordionOrder">
+    {% set status = constant('App\\Entity\\Package::STATUS') %}
+    {% for salesOrder in order.salesOrders %}
+        <div class="accordion-item rounded overflow-hidden my-3">
+        <h2 class="accordion-header" id="order{{ salesOrder }}-tab">
+            <button class="accordion-button title-hover collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#order{{ salesOrder }}Tab" aria-expanded="false" aria-controls="order{{ salesOrder }}Tab">
+                Sales Order # : <span class="text-primary">{{ salesOrder }}</span>
+            </button>
+        </h2>
+        <div id="order{{ salesOrder }}Tab" class="accordion-collapse collapse" aria-labelledby="order{{ salesOrder }}-tab" data-bs-parent="#accordionOrder">
+            <div class="accordion-body bg-accordion-body pt-0 px-md-2 px-0">
+                <div class="text-end">
+                    {% for invoice in salesOrder.invoices %}
+                        {% if invoice.pdf %}
+                            <a class="btn btn-secondary btn-sm" href="{{ invoice.pdfWebPath }}" download="{{ invoice.invoiceNumber }}"><i class="fas fa-cloud-download-alt"></i> Invoice {{ salesOrder.invoices | length > 1 ? loop.index }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-2 row-cols-md-2 row-cols-lg-3 p-3">
+                    {% if order.email or order.shippingPhone %}
+                        <div class="col my-2">
+                            <div class="fw-bold my-2">Contact Information</div>
+                            <div>{{ order.email }}</div>
+                            <div>{{ order.shippingPhone }}</div>
+                        </div>
+                    {% endif %}
+                    {% if order.shippingName or order.shippingAddress or order.shippingStreet or order.shippingState or order.shippingCity or order.shippingPincode %}
+                        <div class="col my-2">
+                            <div class="fw-bold my-2">Shipped To</div>
+                            <div>
+                                <div>{{ order.shippingName }}</div>
+                                {{ order.shippingAddress }}<br>{{ order.shippingStreet }}
+                                {{ order.shippingState }} {{ order.shippingCity }} {{ order.shippingPincode }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="col my-2">
+                        <div class="fw-bold my-2">Order Summary</div>
+                        {% if salesOrder.subtotal %}
+                            <div class="d-flex justify-content-between">
+                                <div>Item(s) Subtotal</div>
+                                <div>{{ salesOrder.subtotal|format_currency('INR', {fraction_digit: 2}) }}</div>
+                            </div>
+                        {% endif %}
+                        {% if salesOrder.shipping %}
+                            <div class="d-flex justify-content-between">
+                                <div>Shipping</div>
+                                <div>{{ salesOrder.shipping }}</div>
+                            </div>
+                        {% endif %}
+                        {% if salesOrder.taxes %}
+                            {% for tax in salesOrder.taxes %}
+                                <div class="d-flex justify-content-between">
+                                    <div>{{ tax.tax_name }}</div>
+                                    <div>{{ tax.tax_amount|round(2)|format_currency('INR', {fraction_digit: 2}) }}</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        {% if salesOrder.discount %}
+                            <div class="d-flex justify-content-between">
+                                <div>Promotion Applied</div>
+                                <div>{{ salesOrder.discount|format_currency('INR', {fraction_digit: 2}) }}</div>
+                            </div>
+                        {% endif %}
+                        {% if salesOrder.total %}
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-bold">Grand Total</div>
+                                <div  class="fw-bold">{{ salesOrder.total|format_currency('INR', {fraction_digit: 2}) }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% for package in salesOrder.packages %}
+                    <div class="container book-status py-3 border-1 bg-white mb-3">
+                        <div class="fw-bold py-2 d-md-flex justify-content-between mb-2 align-items-center">
+                            {% set currentDate = "now"|date("Y-m-d") %}
+                            {% set deliveryDate = package.deliveryDate|date("Y-m-d") %}
+                            {% set dateDiff = currentDate|date_modify(deliveryDate) %}
+                            {% set dateDiffDays = (currentDate|date("U") - dateDiff|date("U")) / 86400 %}
+
+                            <div class="pb-2">Shipment {{ salesOrder.packages | length > 1 ? loop.index}} Status: <span class="badge rounded-pill text-bg-primary">{{ status[package.status] }}</span></div>
+                            <div class="d-flex align-items-center">
+                                {% if package.trackingNumber and dateDiffDays <= 2 %}
+                                    <div class="pe-2"><button class="btn btn-secondary btn-sm text-end" data-bs-toggle="modal" data-bs-target="#trackingModal" data-id="{{ package.trackingNumber }}">Track Order</button></div>
+                                {% endif %}
+                                {% if not package.return | length and dateDiffDays <= 7 and package.status == 4 %}
+                                    <div><button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal" data-order-id="{{ package.id }}">Return / Replace</button></div>
+                                {% elseif(package.return) %}
+                                    <div>
+                                        <span class="btn btn-sm disabled opacity-100 {{ package.return.status == 1 ? ' btn-info' : ' btn-success'  }}">{{ package.return.status == 1 ? 'Return Submitted' : 'Return Processed' }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="step completed">
+                                <div class="step-circle"><span>&#10003</span></div>
+                            </div>
+                            <div class="progress" style="flex: 1;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ package.status > 0 ? '100' : '0' }}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="step active">
+                                <div class="step-circle"><span>{{ package.status > 1 ? '&#10003' : '2' }}</span></div>
+                            </div>
+                            <div class="progress" style="flex: 1;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ package.status > 2 ? '100' : (package.status == 2 ? '50' : '0') }}%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-circle"><span>{{ package.status > 2 ? '&#10003' : '3' }}</span></div>
+                            </div>
+                            <div class="progress" style="flex: 1;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ package.status > 3 ? '100' : (package.status == 3 ? '50' : '0') }}%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-circle"><span>{{ package.status > 3 ? '&#10003' : '4' }}</span></div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="step completed">
+                                <div class="step-label">Order Placed</div>
+                            </div>
+                            <div class="step active">
+                                <div class="step-label">{{ package.status > 1 ? 'Shipped' : 'Processing' }}</div>
+                            </div>
+                            <div class="step"> <div class="step-label">Out for Delivery</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-label">Delivered</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if (salesOrder.items | length) > 1 %}
+                    <div class="p-2">
+                        {% for orderItem in salesOrder.items %}
+                            {% set item = orderItem.item %}
+                            <div class="card mb-2">
+                                <div class="d-flex g-0">
+                                    <div class="p-2">
+                                        <img src="{{ item.image ? (item.image | imagine_filter('sm')) : asset('images/default.png') }}" class="border ratio-1-1 object-fit-contain" width="30" alt>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card-body p-2">
+                                            <div class="d-flex justify-content-between">
+                                                <a href="{{ path('productDetails', {'slug' : item.slug}) }}" target="_blank">
+                                                    <div class="card-title">
+                                                        {{ item.name }}
+                                                        {% if orderItem.quantity > 1 %}
+                                                            <span class="badge bg-primary">{{ orderItem.quantity }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </a>
+                                                <div><span class="badge text-bg-secondary">{{ orderItem.total |format_currency('INR', {fraction_digit: 2}) }}</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-labelledby="trackingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content"></div>
+    </div>
+</div>

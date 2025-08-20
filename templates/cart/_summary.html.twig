@@ -1,0 +1,49 @@
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <h6 class="m-0">Order Summary</h6>
+        </div>
+    </div>
+    <div class="card-body p-2">
+        {% for cart in carts %}
+            {% set inStock = cart.item.inStock(cart.quantity, carts) %}
+            <div class="card mb-2">
+                <div class="card-body p-2 d-flex {{ not inStock ? 'opacity-50' }}">
+                    <div class="pe-2">
+                        <img src="{{ cart.item.image ? (cart.item.image | imagine_filter('sm')) : asset('images/default.png') }}" class="border border-primary-subtle ratio-1-1 object-fit-contain" width="70" alt>
+                    </div>
+                    <div class="col flex-grow-1">
+                        {% if not inStock %}
+                            <div class="badge bg-danger small"><i class="far fa-exclamation-triangle"></i> OUT OF STOCK</div>
+                        {% endif %}
+                        <div class="card-title small">{{ cart.item.name }}</div>
+                        <div class="card-title d-flex justify-content-between">
+                            <div class="small">{{ cart.item.price|format_currency('INR', {fraction_digit: 2}) }} x {{ cart.quantity }}</div>
+                            <div class="fw-bold">{{ (cart.item.price * cart.quantity) |format_currency('INR', {fraction_digit: 2}) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="col mt-3 mb-2">
+            <div class="d-flex justify-content-between">
+                <div>Subtotal</div>
+                <div>{{ subtotal|round(2)|format_currency('INR', {fraction_digit: 2}) }}</div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <div>Shipping <small class="text-muted">({{ app.session.get('taxType')=='inter'?'I' }}GST 18% extra)</small></div>
+                <div>{{ shippingFees|round(2)|format_currency('INR', {fraction_digit: 2}) }}</div>
+            </div>
+            {% for name, tax in taxes %}
+                <div class="d-flex justify-content-between">
+                    <div>{{ name }}</div>
+                    <div>{{ tax|round(2)|format_currency('INR', {fraction_digit: 2}) }}</div>
+                </div>
+            {% endfor %}
+            <div class="d-flex justify-content-between">
+                <div class="fw-bold">Grand Total</div>
+                <div  class="fw-bold">{{ (subtotal + taxTotal + shippingFees)|round(2)|format_currency('INR', {fraction_digit: 2}) }}</div>
+            </div>
+        </div>
+    </div>
+</div>

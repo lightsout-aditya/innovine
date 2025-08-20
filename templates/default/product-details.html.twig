@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+
+{% block extra_javascripts %}
+{% endblock %}
+
+{% block body %}
+    <section class="p-2">
+        <div class="container">
+            <div class="row py-3 py-md-5">
+                {% if product.groupImages | length %}
+                    <div class="col-md-5">
+                        <div class="rounded shadow shadow-xl">
+                            <section id="main-slider" class="splide main-slider">
+                                <div class="splide__track p-4 mt-2">
+                                    <ul class="splide__list">
+                                        {% for item in product.groupImages %}
+                                            <li class="splide__slide text-center">
+                                                <a class="glightbox" href="{{ item.image | imagine_filter('xl') }}">
+                                                    <img class="img-fluid" src="{{ item.image | imagine_filter('xl') }}"  alt>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </section>
+                            <section id="thumbnail-slider" class="splide thumbnail-slider">
+                                <div class="splide__track pb-3">
+                                    <ul class="splide__list">
+                                        {% for item in product.groupImages %}
+                                            <li class="splide__slide card-shadow border border-3 my-2"><img src="{{ item.image | imagine_filter('md') }}" class="img-fluid" alt></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-md-5">
+                        <img class="img-fluid w-100 h-100 shadow shadow-lg" src="{{ asset('images/default.png') }}"  alt>
+                    </div>
+                {% endif %}
+                <div class="col-md-6 ms-md-5 ms-0 py-4 py-md-0">
+                    {#{% set availableStock = product.actualAvailableStock %}#}
+                    {% set availableStock = product.inStock %}
+                    <div class="h5 lh-1 my-2  opacity-75">{{ product.name }}</div>
+                    {% if product.sku %}
+                        <div class="my-3"><span class="fw-bold">SKU :</span> {{ product.sku }}</div>
+                    {% endif %}
+
+                    {% if not product.comboProduct %}
+                        {% if not availableStock %}
+                            <div class="text-danger my-3 fw-bold">Out of Stock</div>
+                        {% elseif availableStock < 10 %}
+                            <div class="text-warning my-3 fw-bold">Only {{ availableStock }} item left</div>
+                        {% else %}
+                            <div class="text-success my-3 fw-bold">In Stock</div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if showPrice and product.price %}
+                        <div class="my-2 mb-2"><span class="fw-bold h6">Price: {{ product.price|format_currency('INR', {fraction_digit: 2}) }} </span><span class="opacity-75 text-blue"></span></div>
+                    {% endif %}
+                    {% if product.group and (product.group.items | length > 1) %}
+                        <div class=" my-2">
+                            <div class="fw-bold mt-2">Size:</div>
+                        </div>
+                        <div class="row">
+                            {% for item in product.group.items %}
+                                {% if item.showInPortal and item.active %}
+                                    <a class="col border border-2 m-1 text-center {{ product.id == item.id ? 'bg-primary text-white border-secondary' }}" href="{{ path('productDetails', {'slug' : item.slug}) }}" style="max-width: 45px">{{ item.size }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% if product.group.sizeChart %}
+                            <div class="size-chart mt-2">
+                                <a class="glightbox w-auto h-100" href="{{ product.group.sizeChart | imagine_filter('xl') }}">
+                                    <img src="{{ asset('images/scale.png') }}" height="20" alt> Size Chart
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {% if product.compositeItems | length %}
+                            <div class="max-vh-40 overflow-auto pe-2">
+                                {% for item in product.compositeItems %}
+                                    {% set item = item.item %}
+                                    <div class="card mb-2">
+                                        <div class="d-flex g-0">
+                                            <div class="p-2">
+                                                {% if item.images | length %}
+                                                    <img src="{{ item.images[0].image | imagine_filter('sm') }}" class="img-fluid ratio-1-1 overflow-hidden" width="30" alt>
+                                                {% else %}
+                                                    <img src="{{ asset('images/default.png') }}" class="img-fluid p-2 border" width="30" alt>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex justify-content-between">
+                                                        <a href="{{ path('productDetails', {'slug' : item.slug}) }}" target="_blank">
+                                                            <div class="card-title">{{ item.name }}</div>
+                                                        </a>
+                                                        <div><span class="badge text-bg-secondary">{{ showPrice ? item.rate|format_currency('INR', {fraction_digit: 2}) }}</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    <div class="cart-wrapper">
+                        <div class="my-3">
+                            <div class="fw-bold mb-2 opacity-75">Quantity:</div>
+                            <div class="quantity-widget d-inline-flex" data-max="{{ env('MAX_QTY') }}">
+                                <button class="btn btn-primary minus">−</button>
+                                <input type="tel" maxlength="3" value="1" class="form-control p-0 qty-input text-center" autocomplete="off"/>
+                                <button class="btn btn-primary plus">+</button>
+                            </div>
+                        </div>
+                        <div class="my-3">
+                            {% if showPrice %}
+                                {% if product.itemsMandatory | length %}
+                                    <div class="mandatory-items pb-4">
+                                        <div class="fw-bold h6">Compulsory Items with the Kit:</div>
+                                        <span class="pb-2 text-danger small">Please select size where applicable.</span>
+                                        <div class="cards">
+                                            {% include 'default/_mandatory.html.twig' with { 'itemsMandatory' : product.itemsMandatory } only %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <button class="btn btn-primary add-to-cart" data-id="{{ product.slug }}" {{ not product.comboProduct and not availableStock ? 'disabled' }}><i class="fas fa-shopping-cart text-white"></i> Add to Cart</button>
+                            {% else %}
+                                <a href="{{ path('login') }}" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

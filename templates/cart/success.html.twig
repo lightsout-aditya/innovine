@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="py-4 px-2 my-4 text-center">
+        <h2>Payment successful!</h2>
+        <div class="p-3"><i class="far fa-check-circle fa-5x text-success"></i></div>
+        <div class="alert alert-info mx-auto" style="max-width:400px">
+            <div>Amount paid: {{ transaction.amount }}</div>
+            <div>Payment mode: {{ transaction.paymentMode }}</div>
+        </div>
+        <div class="py-3 mx-auto" style="max-width:540px;">
+            <p>Thank you for your order.</p>
+        </div>
+        <div class="pt-4 px-1">
+            {% if transaction.order %}
+                <a href="{{ url('myOrders') }}" class="btn btn-secondary text-white me-2">View Order</a>
+            {% endif %}
+            <a href="{{ url('home') }}" class="btn btn-primary text-white">Back to Home</a>
+        </div>
+    </div>
+{% endblock %}

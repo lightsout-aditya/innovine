@@ -1,0 +1,37 @@
+<button class="action-import btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{ action.name }}Modal"><i class="fas fa-receipt"></i> {{ action.label }}</button>
+<div class="modal fade" id="{{ action.name }}Modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button data-bs-dismiss="modal" class="btn btn-sm btn-secondary" formtarget="_self"><i class="fa fa-close"></i> Close</button>
+                <h5 class="modal-title">{{ action.label }}</h5>
+            </div>
+            <div class="modal-body">
+                <form action="{{ action.linkUrl }}" method="post" autocomplete="off">
+                    <div class="row">
+                        <div class="col-sm-12 mb-3">
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com">
+                                <label for="email">Email address</label>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-submit"><i class="fas fa-receipt"></i> Invite</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        const modal = $('#{{ action.name }}Modal');
+        modal.on( "submit", "form", function() {
+            const btnSubmit = $(this).find('.btn-submit');
+            btnSubmit.prop('disabled', true).find('.fas').removeClass('fa-receipt').addClass('fa-spinner fa-spin');
+        });
+    });
+</script>

@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="text-center py-3">
+            <picture>
+                <source media="(min-width:991px)" srcset="{{ asset('images/faq.png') }}" class="img-fluid">
+                <img src="{{ asset('images/faq-m.png') }}" class="img-fluid" alt>
+            </picture>
+        </div>
+        <div class="text-primary my-4 text-center">{{ page?page.body|raw }}</div>
+    </div>
+    <div class="container mx-width-980 m-auto my-3">
+        {% if faqs|length %}
+            <div class="faq">
+                {% if app.request.get('title') %}
+                    <h5 class="my-3 fw-bold">FAQs</h5>
+                {% endif %}
+                <div class="accordion pb-5" id="accordionFaq">
+                    {% for faq in faqs %}
+                        <div class="accordion-item rounded-4 overflow-hidden my-4">
+                            <h2 class="accordion-header" id="faq{{ loop.index }}-tab">
+                                <button class="accordion-button title-hover collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ loop.index }}Tab" aria-expanded="{#{{ not loop.index0 ? 'true' : 'false' }}#}false" aria-controls="faq{{ loop.index }}Tab">
+                                    <h6 class="m-0 p-0 fw-lighter">{{ faq.title }}</h6>
+                                </button>
+                            </h2>
+                            <div id="faq{{ loop.index }}Tab" class="accordion-collapse collapse" aria-labelledby="faq{{ loop.index }}-tab" data-bs-parent="#accordionFaq">
+                                <div class="accordion-body bg-accordion-body pt-0">
+                                    <div class="ls-1">{{ faq.description |raw}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="container-fluid text-center py-3">
+                <div class="text-primary h3">No FAQs Found.</div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+

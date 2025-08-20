@@ -1,0 +1,66 @@
+<div class="weeklySalesLoader text-center">
+    <div class="spinner-grow text-warning" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div class="d-flex flex-wrap justify-content-evenly align-items-center d-none">
+    <div class="text-center">
+        <h1 style="font-size: 50px;color: #323f60; margin: 0; padding: 0" class="totalSales fw-bold lh-1"></h1>
+        <div style="font-size: 20px;color: #323f60; margin: 0; padding: 0" class="fw-bold">Total Sales</div>
+    </div>
+    <div id="weeklyOrdersContainer"><canvas id="weeklySales"></canvas></div>
+</div>
+
+{% block body_javascript %}
+    <script type="text/javascript">
+        $(function() {
+            const loader = $('.weeklySalesLoader');
+            loader.show();
+            $.ajax({
+                'url': '{{ path('weeklySales') }}'
+            }).then(function (response){
+                loader.hide().next().removeClass('d-none');
+                $('.totalSales').text(response.totalSales);
+                $('#weeklySalesContainer').toggleClass('d-none', response.sales === 0)
+                const data = {
+                    datasets: [{
+                        data: response.sales,
+                        backgroundColor: ['rgba(106, 133, 189)'],
+                        borderColor: ['rgb(40, 53, 78)'],
+                        barPercentage: 0.5,
+                        borderWidth: 2,
+                    }]
+                };
+                const config = {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        tension: .6,
+                        bezierCurve : false,
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display:false,
+                            },
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                    },
+                };
+                const chart = new Chart(document.getElementById('weeklySales'), config);
+            })
+        });
+    </script>
+{% endblock %}

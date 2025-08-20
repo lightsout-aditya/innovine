@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block breadcrumb %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+    <section class="error text-center container pt-4 px-5">
+        <div class="pb-4">
+            <img src="{{ asset('images/error.png') }}" alt="Page Not Found">
+            <h5 class="red-gradient-font">Error</h5>
+        </div>
+        <h4 class="text-black fw-bolder">Sorry, unexpected error</h4>
+        <p class="py-3">We are sorry. The page you searched for either doesn't exist or you may have mistyped the address. Don't worry, return to the homepage or previous page.</p>
+        <div>
+            <a class="btn btn-gradient border-0 rounded-pill px-4 m-1" href="{{ path('home') }}">Go to Home</a>
+            <button type="button" class="btn btn-outline-primary border-red rounded-pill m-1" onclick="history.back()">Previous Page</button>
+        </div>
+    </section>
+{% endblock %}

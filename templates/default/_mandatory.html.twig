@@ -1,0 +1,46 @@
+{% if itemsMandatory | length %}
+    {% for itemMandatory in itemsMandatory %}
+        {% set items = itemMandatory.group.activeVisibleItems %}
+        {% if items|length %}
+            <div class="card mb-2">
+                <div class="d-flex g-0">
+                    <div class="p-2">
+                        <img src="/images/default.png" class="img-fluid p-2 border" width="30" alt="">
+                    </div>
+                    <div class="col">
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between">
+                                <a href="/product/my-holistic-learning-journey" target="_blank">
+                                    <div class="card-title">{{ itemMandatory.group ? itemMandatory.group : itemMandatory }} <span>x {{ itemMandatory.quantity }}</span></div>
+                                </a>
+                                {% if items|length > 1 %}
+                                    <table class="table w-auto table-borderless table-sm">
+                                        <tr>
+                                            <th>Size</th>
+                                            <th colspan="2">Set</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <select class="form-select form-select-sm bg-secondary w-auto" autocomplete="off">
+                                                    {% for item in items %}
+                                                        <option value="{{ item.slug }}">{{ item.size }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" {#data-qty="{{ itemMandatory.quantity }}" value="{{ itemMandatory.quantity }}"#} value="1" maxlength="3" min="0" max="{{ env('MAX_QTY') }}" autocomplete="off" class="form-control form-control-sm bg-secondary-subtle" style="width:75px"/>
+                                            </td>
+                                            <td class="align-middle cursor-pointer"><i class="fal fa-plus-circle"></i></td>
+                                        </tr>
+                                    </table>
+                                {% else %}
+                                    <div><input data-id="{{ items|first.slug }}" type="number" {#data-qty="{{ itemMandatory.quantity }}"#} disabled value="1" autocomplete="off" class="form-control form-control-sm bg-secondary-subtle" style="width:75px" /></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}

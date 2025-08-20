@@ -1,0 +1,77 @@
+<div class="modal-header">
+    <div class="modal-title fs-6 fw-bold" id="addressModalLabel">Address</div>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+{% set address = addressForm.vars.data %}
+{% set id = app.request.get('id') %}
+{{ form_start(addressForm, {'method': 'post', 'action': id ? path('addressEdit', {'id' : id}) :  path('address'), 'attr': {'autocomplete': 'off'}}) }}
+<div class="modal-body">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="form-floating mb-3">
+                {{ form_widget(addressForm.name,  {'attr': {'class': 'form-control', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                <label for="firstName">Full Name</label>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="input-group mobile-input">
+                <span class="input-group-text " id="addon-wrapping">+91</span>
+                <div class="form-floating">
+                    {{ form_widget(addressForm.phone,  {'attr': {'class': 'form-control validate', 'placeholder': '', 'pattern': '[6-9][0-9]{9}', 'autocomplete': 'new' }}) }}
+                    <label for="mobile" >Mobile Number</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-floating">
+                {{ form_widget(addressForm.address,  {'attr': {'class': 'form-control', 'placeholder': '', 'autocomplete': 'new' }}) }}
+                <label for="address">Flat No. Building Name <span class="text-primary fw-bold">*</span></label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-floating">
+                {{ form_widget(addressForm.street,  {'attr': {'class': 'form-control', 'placeholder': '', 'autocomplete': 'new' }}) }}
+                <label for="street">Street / Locality<span class="text-primary fw-bold">*</span></label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            {{ form_widget(addressForm.state, {'attr': {'class': 'stateName'}}) }}
+            <div class="form-floating">
+                <select class="form-select {{ not address.state ? 'blank' }} stateCode fetch-option auto" data-val="{{ address.stateCode|default }}" data-fetch="city" id="stateCode" name="address[stateCode]" required>
+                    {% if address.stateCode %}
+                        <option value="{{ address.stateCode }}">{{ address.state|default }}</option>
+                    {% endif %}
+                </select>
+                <label for="stateCode">State <span class="text-primary fw-bold">*</span></label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-floating">
+                <select class="form-select {{ not address.city ? 'blank' }}" data-val="{{ address.city|default }}" id="city" name="address[city]">
+                    {% if address.city %}
+                        <option value="{{ address.city }}">{{ address.city }}</option>
+                    {% endif %}
+                </select>
+                <label for="city">City<span class="text-primary fw-bold">*</span></label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-floating">
+                {{ form_widget(addressForm.pincode,  {'attr': {'class': 'form-control validate', 'placeholder': '', 'pattern': '[1-9][0-9]{5}', 'autocomplete': 'new'}}) }}
+                <label for="pinCode">Pin code<span class="text-primary fw-bold">*</span></label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-check ps-0">
+                {{ form_widget(addressForm.default,  {'attr': {'class': 'custom-control-input'}}) }}
+                {{ form_label(addressForm.default, 'Mark as default address', {'label_attr': {'class': 'custom-control-label '}}) }}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</div>
+{{ form_widget(addressForm._token) }}
+{{ form_end(addressForm, {'render_rest': false}) }}

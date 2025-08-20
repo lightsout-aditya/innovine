@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ env('SITE_NAME') }}</title>
+</head>
+<body style="margin:0;padding:0;background:#FFF">
+<div style="width:600px;max-width:100%;margin: 0 auto;padding: 0;">
+    <div style="padding:10px;background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,206,0,1) 91%, rgba(255,216,51,1) 100%, rgba(255,221,77,1) 100%);text-align:center">
+        <img src="{{ env('SITE_URL') }}/images/logo.png" style="max-height:150px" alt="{{ env('SITE_NAME') }}">
+    </div>
+    <div style="padding:20px;box-sizing:border-box;min-height:200px;color:#000;background:#ffffff;">
+        {{ content | raw }}
+    </div>
+    <div style="min-height:40px;padding-top:30px;padding-bottom:30px;background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,206,0,1) 91%, rgba(255,216,51,1) 100%, rgba(255,221,77,1) 100%);">
+        {% if setting.emailFooter is defined %}
+            <div style="padding:0 20px;box-sizing:border-box;color:#000;">
+                {{ setting.emailFooter|raw }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

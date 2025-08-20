@@ -1,0 +1,42 @@
+{% if user.addresses | length %}
+    {% for address in user.addresses %}
+        <div class="col">
+            <div class="card bg-white card-shadow">
+                <div class="card-header d-flex justify-content-between">
+                    <label>
+                        {% if pick is defined %}
+                            <input autocomplete="off" class="form-check-input" type="radio" name="{{ billing is defined ? 'billing' : 'shipping' }}Address" {{ billing is defined ? 'disabled' }} {{ app.session.get('address') == address.id ? 'checked' : (address.default or (not app.session.get('address') and loop.index == 1) ? 'checked') }} value="{{ address.id }}">
+                        {% endif %}
+                        Address {{ loop.index }} {% if address.default %}<span class="text-primary">(default)</span>{% endif %}
+                    </label>
+                    <div class="text-primary d-flex">
+                        <div class="cursor-pointer" data-url="{{ path('addressEdit', {'id' : address.id}) }}" data-bs-toggle="modal" data-bs-target="#addressModal"><i class="far fa-edit mx-2"></i></div>
+                        <div data-url="{{ path('addressDelete', {'id' : address.id}) }}" class="delete-address cursor-pointer"><i class="fas fa-trash-alt text-primary"></i></div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div>{{ address.name }}</div>
+                    <div>+91 {{ address.phone }}</div>
+                    <div>{{ address.address }} {{ address.street }}</div>
+                    <div>{{ address.city }} {{ address.state }} {{ address.Pincode }}</div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="text-center mt-5">
+        <div><img src="{{ asset('images/location.png') }}" height="100" alt></div>
+        <div class="text-center my-3 fw-bold">No Address added</div>
+        <div class="text-center my-3">Click on the button to add an address.</div>
+        <div class="my-4">
+            <button class="btn btn-dark" type="button" data-url="{{ path('address') }}" data-bs-toggle="modal" data-bs-target="#addressModal">
+                <i class="fas fa-plus-circle"></i> <span>Add Address</span>
+            </button>
+        </div>
+    </div>
+{% endif %}
+<div class="modal fade" id="addressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>

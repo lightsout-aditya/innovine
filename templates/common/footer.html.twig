@@ -1,0 +1,92 @@
+{% set setting = app.session.get('setting') %}
+<footer id="footer" class="text-white">
+    <div class="footer-area bg-dark py-5">
+        <section class="container">
+            <div class="row text-white text-center text-lg-start">
+                <div class="col-lg-4 footer-logo">
+                    <a class="d-inline-block" href="{{ path('home') }}">
+                        <img src="{{ setting.logoFooter ? (setting.logoFooter | imagine_filter('sm')) : asset('images/logo-white.webp') }}" height="70" alt="Innovine">
+                    </a>
+                    {% if setting.address | length %}
+                        <div class="my-3"><a href="{{ setting.mapLink }}">{{ setting.address | raw }}</a></div>
+                    {% endif %}
+
+                    {% if setting.facebookLink or setting.instagramLink or setting.linkedinLink %}
+                        <div>Follow Us</div>
+                        <div class="col-lg-12 pt-3">
+                            <ul class="social-icons d-flex flex-row list-unstyled justify-content-lg-start justify-content-center">
+                                {% if setting.facebookLink %}
+                                    <li class="me-2"><a href="{{ setting.facebookLink }}"><i class="fa-2x fab fa-facebook text-white"></i></a></li>
+                                {% endif %}
+                                {% if setting.instagramLink %}
+                                    <li class="mx-2"><a href="{{ setting.instagramLink }}"><i class="fa-2x fab fa-instagram text-white"></i></a></li>
+                                {% endif %}
+                                {% if setting.linkedinLink %}
+                                    <li class="mx-2"><a href="{{ setting.linkedinLink }}"><i class="fa-2x fab fa-linkedin text-white"></i></a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4 pt-3 pt-sm-0 my-4 my-lg-0">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="h6">Useful Links</div>
+                            <div class="col-lg-12 py-2">
+                                <a class="my-4" href="{{ path('aboutUs') }}">About Us</a>
+                            </div>
+                            <div class="col-lg-12 py-2">
+                                <a class="my-4" href="{{ path('faqs') }}">FAQs</a>
+                            </div>
+                            {% if pages | length %}
+                                {% for page in pages %}
+                                    <div class="col-lg-12 py-2">
+                                        <a class="my-4" href="{{ path('page', {'slug' : page.slug}) }}">{{ page.name }}</a>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <div class="h6">Shop</div>
+                            {% if itemCategories | length %}
+                                {% for item in itemCategories %}
+                                    {% if item.slug == 'uniform' %}
+                                        <div class="col-lg-12 py-2">
+                                            <a class="my-4" href="{{ path('productsCategory', {'category' : 'uniform'}) }}">Uniforms</a>
+                                        </div>
+                                    {% endif %}
+                                    {% if item.slug == 'books' %}
+                                        <div class="col-lg-12 py-2">
+                                            <a class="my-4" href="{{ path('productsCategory', {'category' : 'books'}) }}">Learning Material</a>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if setting.contactPhone or setting.contactEmail %}
+                    <div class="col-lg-4 pt-3 pt-sm-0">
+                        <div class="h6">NEED HELP</div>
+                        {% if setting.contactPhone %}
+                            <div class="col-lg-12 py-2">
+                                <i class="fas fa-phone me-2"></i>
+                                <a class="my-4" href="tel:{{ setting.contactPhone }}"><span class="h6"> {{ setting.contactPhone }}</span></a>
+                            </div>
+                        {% endif %}
+                        {% if setting.contactEmail %}
+                            <div class="col-lg-12 py-2">
+                                <i class="fas fa-envelope me-2"></i>
+                                <a class="my-4" href="mailto:{{ setting.contactEmail }}">{{ setting.contactEmail }}</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <hr class="mx-5"/>
+            <div class="text-center text-white">
+                &copy; Copyright <strong><span>{{ 'today'|date('Y') }} Innovine Solutions </span></strong> All Rights Reserved
+            </div>
+        </section>
+    </div>
+</footer>

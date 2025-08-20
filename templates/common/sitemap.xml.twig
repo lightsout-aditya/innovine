@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="sitemap.xsl"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    {% set firstDayOfMonth = 'first day of this month'|date('Y-m-d')|date('c') %}
+    {% set firstDayOfWeek = 'Monday this week'|date('Y-m-d')|date('c') %}
+    {% for route in ['home', 'products', 'cart', 'faqs'] %}
+        <url>
+            <loc>{{ absolute_url(path(route)) }}</loc>
+            <lastmod>{{ firstDayOfMonth }}</lastmod>
+        </url>
+    {% endfor %}
+    {% for page in pages %}
+        <url>
+            <loc>{{ absolute_url(path('page', {'slug': page.slug})) }}</loc>
+            <lastmod>{{ page.updatedAt|date('c') }}</lastmod>
+            {% if page.featuredImage %}
+                <image:image>
+                    <image:loc>{{ page.featuredImage | imagine_filter('md') }}</image:loc>
+                </image:image>
+            {% endif %}
+        </url>
+    {% endfor %}
+    {% for product in products %}
+        <url>
+            <loc>{{ absolute_url(path('productDetails', {'slug': product.slug})) }}</loc>
+            <lastmod>{{ product.updatedAt|date('c') }}</lastmod>
+            {% if product.image %}
+                <image:image>
+                    <image:loc>{{ product.image | imagine_filter('sm') }}</image:loc>
+                </image:image>
+            {% else %}
+                <image:image>
+                    <image:loc>{{ asset('images/default.png') }}</image:loc>
+                </image:image>
+            {% endif %}
+        </url>
+    {% endfor %}
+</urlset>

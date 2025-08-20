@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block extra_javascripts %}
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endblock %}
+
+{% block body %}
+    {% set user = app.user %}
+    <section class="mt-2 mt-md-4 checkout">
+        <div class="container">
+            <h3 class="border-bottom border-primary-subtle mb-4 text-primary">Checkout</h3>
+            <div class="row mb-5">
+                <div class="col-md-7 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="m-0">Shipping Address</h6>
+                                <div><span class="badge bg-primary cursor-pointer" data-url="{{ path('address') }}" data-bs-toggle="modal" data-bs-target="#addressModal">New Address</span></div>
+                            </div>
+                        </div>
+                        <div class="card-body px-2 pt-0">
+                            <div class="row row-cols-1 row-cols-lg-2 g-3 mt-0">
+                                {% include 'user/_addresses.html.twig' with {'pick' : true} %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mt-2">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="m-0">Billing Address</h6>
+                                <div>
+                                    <div class="form-check">
+                                        <input type="checkbox" id="sameShipping" name="sameShipping" class="form-check-input" autocomplete="off" checked>
+                                        <label class="form-check-label" for="sameShipping">Same as Shipping</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body px-2 pt-0 billing-card" style="display: none">
+                            <div class="row row-cols-1 row-cols-lg-2 g-3 mt-0">
+                                {% include 'user/_addresses.html.twig' with {'pick' : true, 'billing' : true} %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="order-summary">
+                        {% include 'cart/_summary.html.twig' %}
+                    </div>
+                    {% if user.addresses|length %}
+                        <div class="text-end my-3">
+                            <button type="button" disabled class="btn btn-lg w-100 btn-primary rounded-pill {{ inStock ? 'btn-checkout' }}">Place Order</button>
+                        </div>
+                        {% if inStock %}
+                            <div class="alert d-none mt-2"></div>
+                        {% else %}
+                            <div class="alert alert-danger mt-2 text-center">
+                                <div class="mb-2">Attention! The items marked with 'Out of Stock' above are not available at the moment. Feel free to update your selection.</div>
+                                <a class="btn btn-danger rounded-pill btn-sm" href="{{ path('cart') }}">Update Cart</a>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

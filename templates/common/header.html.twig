@@ -1,0 +1,54 @@
+{% set route = app.request.get('route') %}
+{% set setting = app.session.get('setting') %}
+{% set cartCanvas = render(controller('App\\Controller\\CartController::cart')) %}
+{% set cartCount = app.session.get('cartCount')|default(0) %}
+<header id="navbar_top" class="w-100 bg-secondary">
+    <nav class="navbar navbar-expand-lg navbar-light container">
+        <div class="container-fluid">
+            <a class="me-4 logo" href="{{ path('home') }}">
+                <img src="{{ setting.logo ? (setting.logo | imagine_filter('sm')) : asset('images/logo.png') }}" alt>
+            </a>
+            <button class="navbar-toggler text-decoration-none border-0 bg-transparent" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <img class="menu" src="{{  asset('images/menu-icon.svg') }}" height="20" alt="Menu">
+            </button>
+            <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+                {% include 'common/_menu.html.twig' %}
+            </div>
+        </div>
+    </nav>
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+        <div class="inner">
+            <div class="offcanvas-header">
+                <div class="me-5 mb-4">
+                    <a href="{{ path('home') }}">
+                        <img src="{{ setting.logo ? (setting.logo | imagine_filter('sm')) : asset('images/logo.png') }}" height="70" alt>
+                    </a>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="border-bottom-1"></div>
+            <div class="offcanvas-body mobile-menu">
+                {% include 'common/_menu.html.twig' %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cart" aria-labelledby="cartLabel">
+    {{ cartCanvas|raw }}
+</div>
+
+{% if not app.user %}
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body py-2 px-sm-4 text-center">
+                    <div class="text-end"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                    <div class="px-1 px-sm-3 pb-3">
+                        {% include 'security/_login_form.html.twig' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

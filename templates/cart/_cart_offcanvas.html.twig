@@ -1,0 +1,12 @@
+<div class="offcanvas-header">
+    <div class="offcanvas-title fs-6 fw-bold" id="cartLabel">Shopping Cart</div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+</div>
+<div class="offcanvas-body">
+    {% include 'cart/_cart_items.html.twig' %}
+</div>
+{% if carts | length %}
+    <div class="offcanvas-bottom bg-tertiary p-3">
+        {% include 'cart/_cart_total.html.twig' %}
+    </div>
+{% endif %}

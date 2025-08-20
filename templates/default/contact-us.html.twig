@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block extra_javascripts %}
+{% endblock %}
+{% set setting = app.session.get('setting') %}
+{% block body %}
+    <section class="contact-area my-5" id="contacts">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 py-4">
+                    <div class="section-title text-center">
+                        <h2 class="title text-primary py-3">Contact Us</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-5 py-2">
+                    <div class="contact-about-area">
+                        <div class="thumbnail">
+                            {% if setting.contactUSImage %}
+                                <img src="{{ setting.contactUSImage | imagine_filter('md') }}" alt="contact-img">
+                            {% else %}
+                                <img src="{{ asset('images/contact-us.png') }}" alt="contact-img">
+                            {% endif %}
+                        </div>
+                        <div class="h3 fw-bold">{{ setting.contactUSTitle | raw }}</div>
+                        <div class="description"><p>{{ setting.contactUSDescription | raw }}</p></div>
+                        {% if setting.address %}
+                            <div class="py-2"><strong>Address:</strong>
+                                <a class="py-1" href="{{ setting.mapLink }}">{{ setting.address | raw }}</a>
+                            </div>
+                        {% endif %}
+                        <div class="description">
+                            {% if setting.contactPhone %}
+                                <span class="phone"><strong>Phone:</strong> <a href="tel:{{ setting.contactPhone }}">{{ setting.contactPhone }}</a></span>
+                            {% endif %}
+                            {% if setting.contactEmail %}
+                                <span class="mail"><strong>Email:</strong> <a href="mailto:{{ setting.contactEmail }}">{{ setting.contactEmail }}</a></span>
+                            {% endif %}
+                        </div>
+                        {% if setting.facebookLink or setting.instagramLink or setting.linkedinLink %}
+                            <div class="social">
+                                <span class="title py-2 fw-bold">find with me</span>
+                                <div class="social-share d-flex pt-3">
+                                    {% if setting.facebookLink %}
+                                        <div class="facebook"><a href="{{ setting.facebookLink }}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a></div>
+                                    {% endif %}
+                                    {% if setting.instagramLink %}
+                                        <div class="instagram px-3"><a href="{{ setting.instagramLink }}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a></div>
+                                    {% endif %}
+                                    {% if setting.linkedinLink %}
+                                        <div class="linkedin"><a href="{{ setting.linkedinLink }}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-7 py-2">
+                    <div class="contact-form-wrapper">
+                        {% include 'default/_contact-us.html.twig' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% if setting.contactUsMap %}
+        <div class="container-fluid text-center py-5 px-3 border-2 rounded-2">
+            <iframe src="{{ setting.contactUsMap }}" width="100%" height="400px" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    {% endif %}
+{% endblock %}

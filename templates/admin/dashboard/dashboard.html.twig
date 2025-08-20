@@ -1,0 +1,135 @@
+{% extends ('@!EasyAdmin/page/content.html.twig') %}
+{% block body_class 'dashboard' %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content_header_wrapper %}{% endblock %}
+
+{% block page_content %}
+    <section class="dashboard-wrapper">
+        <div class="d-flex">
+            <div class="content-header-title px-3 py-2">
+                <h4 class="text-uppercase fw-bold m-0">Dashboard</h4>
+            </div>
+        </div>
+        <section class="dashboard-wrapper p-3">
+            <div class="row row-cols-1 row-cols-lg-2 g-4">
+                <div class="col">
+                    <div class="card h-100 bg-light rounded-3 border border-2 p-4">
+                        <h6 class="fw-bold" style="color: #0f4761">Weekly Sales</h6>
+                        {% include "admin/dashboard/weekly_sales.html.twig" %}
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100 bg-light rounded-3 border border-2 p-4">
+                        <h6 class="fw-bold" style="color: #0f4761">Weekly Orders</h6>
+                        {% include "admin/dashboard/weekly_orders.html.twig" %}
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="header py-3">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            {% set colorClass = ['text-danger', 'text-success', 'text-warning', 'text-info', 'text-pink', 'text-olive', 'text-gold', 'text-red', 'text-teal', 'text-lime' ] %}
+                            {% set idx = 0 %}
+                            {% for item in ea.mainMenu.items %}
+                                {% if item.linkUrl and count[item.label|lower] is defined %}
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="rounded bg-light border border-2 my-2">
+                                            <a href="{{ item.linkUrl }}" class="text-center">
+                                                <div class="menu p-4 rounded">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <div class="text-start h1 text-dark fw-bold mb-0">{{ count[item.label|lower] | number_format }}</div>
+                                                            <div class="card-title h5 text-dark fw-bold mb-0">{{ item.label }}</div>
+                                                        </div>
+                                                        <div class="icon icon-shape {{ colorClass[idx] is defined ? colorClass[idx] : 'text-primary' }}">
+                                                            <i class="fa {{ item.icon ? item.icon }} fa-5x"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% set idx = idx + 1 %}
+                                {% endif %}
+                                {% if item.subItems|length %}
+                                    {% for subitem in item.subItems %}
+                                        {% if subitem.linkUrl and count[subitem.label|lower] is defined %}
+                                            <div class="col-12 col-md-6 col-lg-4">
+                                                <div class="rounded bg-light border border-2 my-2">
+                                                    <a href="{{ subitem.linkUrl }}" class="text-center">
+                                                        <div class="menu p-4 rounded">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    <div class="text-start h1 text-dark fw-bold mb-0">{{ count[subitem.label|lower] | number_format }}</div>
+                                                                    <div class="card-title h5 text-dark fw-bold mb-0">{{ subitem.label }}</div>
+                                                                </div>
+                                                                <div class="icon icon-shape {{ colorClass[idx] is defined ? colorClass[idx] : 'text-primary' }}">
+                                                                    <i class="fa {{ subitem.icon ? subitem.icon }} fa-5x"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            {% set idx = idx + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="col">
+                    <div class="card h-100 rounded-3 border border-2 p-4">
+                        <h6 class="fw-bold" style="color: #0f4761">Recent Order{{ recentOrders | length >1 ? 's' }}</h6>
+                        {% if recentOrders | length %}
+                            <table class="table datagrid">
+                                <thead>
+                                <tr>
+                                    <th><span class="fw-bold">SO Number</span></th>
+                                    <th><span class="fw-bold">Customer</span></th>
+                                    <th><span class="fw-bold">Order Date</span></th>
+                                    <th><span class="fw-bold">Amount</span></th>
+                                    <th><span class="fw-bold">Status</span></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for salesOrder in recentOrders %}
+                                    <tr>
+                                        <td data-label="Invoice Number">{{ salesOrder }}</td>
+                                        <td data-label="Created By">
+                                            <a href="{{ ea_url().setController('App\\Controller\\Admin\\UserCrudController').setAction('detail').setEntityId(salesOrder.order.customer.id) }}">{{ salesOrder.order.customer }}</a>
+                                        </td>
+                                        <td data-label="Created Date">{{ salesOrder.createdAt | date('M d Y')}}</td>
+                                        <td data-label="Amount">{{ salesOrder.total|round(0) |format_currency('INR', {fraction_digit: 0}) }}</td>
+                                        <td data-label="Status">
+                                            {% for invoice in salesOrder.invoices %}
+                                                {% if salesOrder.invoices | length > 1 %}
+                                                    <div>{{ invoice }} : {% include 'admin/_invoice_status.html.twig' with { 'status' : invoice.status } only %}</div>
+                                                {% else %}
+                                                    {% include 'admin/_invoice_status.html.twig' with { 'status' : invoice.status } only %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% include 'admin/_so_status.html.twig' with { 'status' : salesOrder.status } only %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tbody>
+                            </table>
+                        {% else %}
+                            <div class="text-center" style="color: #0f4761">No Order found.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

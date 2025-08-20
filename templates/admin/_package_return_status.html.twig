@@ -1,0 +1,6 @@
+{% set status = status is defined ? status : field.value %}
+{% if status == 2 %}
+    <span class="badge bg-success text-white text-uppercase">Resolved</span>
+{% else %}
+    <span class="badge bg-primary text-white text-uppercase">New</span>
+{% endif %}

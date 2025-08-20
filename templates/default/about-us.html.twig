@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+{% block extra_javascripts %}
+{% endblock %}
+{% block body %}
+    <section>
+        {% if page and page.featuredImage %}
+            <div class="animate__animated animate__fadeInDownBig h-100">
+                <img src="{{ page.featuredImage | imagine_filter('lg') }}" class="w-100 h-100 cover cover-top" alt>
+            </div>
+        {% else %}
+            <div class="bg-secondary border-top">
+                <div class="p-md-4 p-2">
+                    <div class="text-center p-md-4 p-2">
+                        <h2 class="text-primary">{{ page ? page.name }}</h2>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+    <section class="container">
+        <div class="py-4">{{ page ? page.body | raw }}</div>
+    </section>
+    <section class="container">
+        {% if page and page.sections | length %}
+            {% for section in page.sections %}
+                {% if section.heading %}
+                    <h4 class="my-4 text-black text-center">{{ section.heading|raw }}</h4>
+                {% endif %}
+                {% if section.image %}
+                    <div class="my-5 row">
+                        <div class="col text-center">
+                            <img src="{{ section.image | imagine_filter('md') }}" alt class="img-fluid">
+                        </div>
+                    </div>
+                {% endif %}
+                {% if section.title %}
+                    <div class="my-4 h5">{{ section.title }}</div>
+                {% endif %}
+                {% if section.subTitle %}
+                    <div class="my-4 h6">{{ section.subTitle }}</div>
+                {% endif %}
+                {% if section.description %}
+                    <div class="my-4">{{ section.description | raw }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </section>
+{% endblock %}

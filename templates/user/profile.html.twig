@@ -1,0 +1,106 @@
+{% extends 'user/index.html.twig' %}
+{% block tabpanel %}
+    <div class="tab-pane fade show active" id="profile" role="tabpanel"
+         aria-labelledby="general-information-list">
+        {{ form_start(profileForm, {'method': 'post', 'action': path('profile'), 'attr': {'autocomplete': 'off'}}) }}
+        <div class="d-flex justify-content-between align-items-center border-bottom">
+            <div class="fs-6 fw-bold">My Profile</div>
+            <div class="my-2">
+                <button class="btn bg-primary text-white rounded-pill" type="submit">Save Changes</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <div class="profile-avatar position-relative m-2 border-1-theme2">
+                    <div class="position-relative rounded overflow-hidden">
+                        <img class='preview ratio-1 object-fit-cover' style="width: 150px" data-src="{{ asset('images/default-user.png') }}" src='{{ user.avatar ? ('profile/' ~ user.avatar) | imagine_filter('sm') : asset('images/default-user.png') }}' alt/>
+                        {{ form_widget(profileForm.avatarFile,  {'attr': {'class': 'img position-absolute top-0 start-0 opacity-0 profile-photo', 'accept': '.jpg,.png'}}) }}
+                        <div class="actions">
+                            <i class="far fa-cloud-upload cursor-pointer text-white" data-toggle="tooltip" data-html="true" title="Maximum allowed file (jpg/png) size is 5MB"></i>
+                            {% if user.avatar %}
+                                <label class="ml-1 mb-0">{{ form_widget(profileForm.removeAvatar,  {'attr': {'class': 'remove-check d-none'}}) }}<i class="fal fa-trash-alt cursor-pointer text-danger"></i></label>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.firstName,  {'attr': {'class': 'form-control', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                    <label for="firstName">First Name</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.lastName,  {'attr': {'class': 'form-control', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                    <label for="lastName">Last Name</label>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    {% if user.emailVerified %}
+                        {{ form_widget(profileForm.email,  {'attr': {'class': 'form-control is-valid', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                    {% else %}
+                        {{ form_widget(profileForm.email,  {'attr': {'class': 'form-control', 'placeholder': '', 'autocomplete': 'new', 'value': ('@wa.com' in user.email ? '' : user.email) }}) }}
+                    {% endif %}
+                    <label for="emailId">Email address</label>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="input-group mobile-input">
+                    <span class="input-group-text " id="addon-wrapping">+91</span>
+                    <div class="form-floating">
+                        {% if user.mobileVerified %}
+                            {{ form_widget(profileForm.mobile,  {'attr': {'class': 'form-control is-valid', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                        {% else %}
+                            {{ form_widget(profileForm.mobile,  {'attr': {'class': 'form-control validate is-invalid', 'placeholder': '', 'pattern': '[6-9][0-9]{9}', 'autocomplete': 'new', 'value': ('100000' in user.mobile ? '' : user.mobile) }}) }}
+                        {% endif %}
+                        <label for="mobile" >Mobile Number</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.gender,  {'attr': {'class': 'form-select', 'placeholder': '', 'autocomplete': 'new' }}) }}
+                    <label for="gender">Gender</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.dateOfBirth,  {'attr': {'class': 'form-control', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                    <label for="dateOfBirth">Date of birth</label>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.gstNumber, {'attr': {'class': 'form-control validate gst-in '~(user.gstNumber ? 'is-valid'), 'placeholder': '', 'pattern': '[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}', 'maxlength' : '15', 'autocomplete': 'new', 'oninput': 'this.value = this.value.toUpperCase()' }}) }}
+                    <div class="invalid-feedback">GST entered is not valid, please enter valid GST</div>
+                    <div class="valid-feedback"></div>
+                    <label for="pan">GST</label>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.company,  {'attr': {'class': 'form-control company-name', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                    <label for="name">Company Name</label>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.pan, {'attr': {'class': 'form-control validate company-pan '~(user.pan ? 'is-valid'), 'placeholder': '', 'pattern': '[A-Z]{5}[0-9]{4}[A-Z]{1}', 'maxlength' : '10', 'autocomplete': 'new', 'oninput': 'this.value = this.value.toUpperCase()' }}) }}
+                    <div class="invalid-feedback">PAN entered is not valid, please enter valid PAN</div>
+                    <label for="pan">PAN</label>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-floating mb-3">
+                    {{ form_widget(profileForm.additionalEmail, {'attr': {'class': 'form-control validate', 'placeholder': '', 'autocomplete': 'new'}}) }}
+                    <div class="invalid-feedback">Please enter multiple email separated by comma</div>
+                    <label for="pan">Additional Emails</label>
+                </div>
+            </div>
+        </div>
+        {{ form_widget(profileForm._token) }}
+        {{ form_end(profileForm, {'render_rest': false}) }}
+    </div>
+{% endblock %}

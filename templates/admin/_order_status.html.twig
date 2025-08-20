@@ -1,0 +1,11 @@
+{% if field.value == 4 %}
+<span class="badge bg-light text-danger text-uppercase">CANCELLED</span>
+{% elseif field.value == 3 %}
+    <span class="badge bg-success text-white text-uppercase">COMPLETED</span>
+{% elseif field.value == 2 %}
+    <span class="badge bg-warning text-white text-uppercase">PROCESSING</span>
+{% elseif field.value == 1 %}
+    <span class="badge bg-info text-white text-uppercase">ORDERED</span>
+{% else %}
+    <span class="badge bg-danger text-white text-uppercase">DRAFT</span>
+{% endif %}

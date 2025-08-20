@@ -1,0 +1,67 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-dark px-4 p-2 enquire-now fw-bold" data-bs-toggle="modal" data-bs-target="#submissionModal">
+    Contact Us
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="submissionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title ms-4">Contact Us</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="contact-form row p-4" id="contact-form" method="POST" action="{{ path('submission') }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" name="name" required id="name"
+                                       placeholder="First Name">
+                                <label for="name">Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" name="email" required  id="emailId"
+                                       placeholder="name@example.com" pattern="[^@]+@[^@]+\.[a-zA-Z]{2,6}">
+                                <label for="emailId">Email address</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group mobile-input">
+                                <span class="input-group-text " id="addon-wrapping">+91</span>
+                                <div class="form-floating">
+                                    <input type="tel" class="form-control rounded-end" name="phone" required id="phone"
+                                           placeholder="Phone Number" aria-label="Username" pattern="[6-9][0-9]{9}" maxlength="10" minlength="10"
+                                           aria-describedby="addon-wrapping">
+                                    <label for="phone">Phone Number</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="subject" name="subject" required
+                                       placeholder="Subject">
+                                <label for="subject">Subject</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control"  name="message" required placeholder="Your Message" id="contact-message" style="height: 100px"></textarea>
+                                <label for="contact-message">Your Message</label>
+                            </div>
+                        </div>
+                        <div class="col-12 pt-3">
+                            <input type="hidden" name="token" value="{{ csrf_token('contact') }}"/>
+                            <button name="submit" type="submit" id="submit" class="btn btn-primary w-100 p-2">Submit</button>
+                            <div class="alert d-none rn-btn primary-btn py-4 fs-14 mt-4"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

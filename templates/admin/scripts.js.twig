@@ -1,0 +1,104 @@
+$(function () {
+    const body = $('body');
+    const ajax = function (config, loader) {
+        let Deferred = $.Deferred(),
+            $loader = $(".loader");
+
+        if (loader) {
+            $loader.show();
+        }
+        $.ajax($.extend({
+            method: 'post',
+            success: function (data, status, xhr) {
+                Deferred.resolve(data, status, xhr);
+            },
+            error: function (status, data) {
+                Deferred.resolve(status);
+            }
+        }, config)).done(function () {
+            if (loader) {
+                $loader.hide();
+            }
+        });
+        return Deferred.promise();
+    };
+
+    let formCollectionItems = $(".field-collection.sortable .form-widget-compound");
+    if(formCollectionItems.length){
+        formCollectionItems.each(function () {
+            let group  = $(this).children().first();
+            Sortable.create(group[0], {
+                animation: 300,
+                sort: true,
+                handle: ".field-collection-item",
+                onChange: function (e) {
+                    $(e.item).parent().children().each(function(idx) {
+                        $(this).find('.position-field').eq(0).find('input').eq(0).val(idx);
+                    });
+                }
+            });
+        });
+    }
+
+    const siteBase = location.origin + $('#header-logo .logo').attr('href').replace('/control/','');
+    const uploadBase = siteBase + '/uploads/';
+    const cacheBase = siteBase + '/media/cache/resolve/md/';
+    const cacheBaseXS = siteBase + '/media/cache/resolve/xs/';
+
+    let imgPreview = $('.ea-edit-form .img-preview');
+    if(imgPreview.length){
+        imgPreview.each(function () {
+            let input = $(this).find('input');
+            let file = input.attr('placeholder');
+            let extraPath = input.data('path') ? input.data('path') + '/' : '';
+            if(file) {
+                $('<img class="img-pre" src="' + ($(this).hasClass('xs') ? cacheBaseXS : cacheBase) + extraPath + file + '" alt>').insertBefore($(this));
+            }
+        });
+    }
+
+    let filePreview = $('.ea-edit-form .file-preview');
+    if(filePreview.length){
+        filePreview.each(function () {
+            let input = $(this).find('input');
+            let file = input.attr('placeholder');
+            let extraPath = input.data('path') ? input.data('path') + '/' : '';
+            if(file) {
+                let extension = file.split('.').pop();
+                let html;
+                if ($.inArray(extension, ['pdf']) !== -1) {
+                    html = '<iframe width="320" height="320" src="https://docs.google.com/viewer?url=' + uploadBase + extraPath + file + '&embedded=true"></iframe>';
+                } else if ($.inArray(extension, ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx']) !== -1) {
+                    html = '<iframe width="320" height="320" src="https://view.officeapps.live.com/op/embed.aspx?src=' + uploadBase + extraPath + file + '"></iframe>';
+                } else if ($.inArray(extension, ['mp4', 'avi', 'wmv', 'mov']) !== -1) {
+                    html = '<video width="267" height="150" controls><source src="' + uploadBase + extraPath + file + '" type="video/' + extension + '"></video>';
+                } else {
+                    html = '<img class="file-pre" src="' + cacheBase + extraPath + file + '" alt>';
+                }
+
+                if($(this).hasClass('download')){
+                    html = html + '<div class="text-end"><a class="btn btn-primary btn-sm" href="/uploads/' + extraPath + file + '" download>Download</a></div>';
+                }
+
+                //$(html).insertBefore(input.parents('.form-widget'));
+                $(html).insertBefore($(this));
+            }
+        });
+    }
+
+    $('.copy2clipboard').on('click', function (e) {
+        e.preventDefault();
+        navigator.clipboard.writeText($(this).prop('href'));
+    });
+
+    $('.form-floating .form-select').on('change', function () {
+        $(this).toggleClass('blank', !$(this).val());
+    });
+
+    body.on('click', '.confirm-action', function (e) {
+        e.preventDefault();
+        if (confirm('Are you sure?')) {
+            location.href = $(this).prop('href');
+        }
+    });
+});

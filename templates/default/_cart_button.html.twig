@@ -1,0 +1,31 @@
+{% if product.inStock %}
+    {% if showPrice %}
+        {% if onlyIcon is defined %}
+            {% if product.itemsMandatory|length %}
+                <a href="{{ path('productDetails', {'slug' : product.slug }) }}" class="px-2 py-1 btn border-primary">
+                    <i class="fas fa-shopping-cart text-primary"></i>
+                </a>
+            {% else %}
+                <button data-id="{{ product.slug }}" class="add-to-cart px-2 py-1 btn border-primary">
+                    <i class="fas fa-shopping-cart text-primary"></i>
+                </button>
+            {% endif %}
+        {% else %}
+            {% if product.itemsMandatory|length %}
+                <a href="{{ path('productDetails', {'slug' : product.slug }) }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-shopping-cart small"></i> Add to Cart
+                </a>
+            {% else %}
+                <button data-id="{{ product.slug }}" class="add-to-cart btn btn-primary btn-sm">
+                    <i class="fas fa-shopping-cart small"></i> Add to Cart
+                </button>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <a href="{{ path('login') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-shopping-cart small"></i> Add to Cart
+        </a>
+    {% endif %}
+{% else %}
+    <span class="px-2 py-1 btn btn-dark disabled btn-sm">Out of Stock</span>
+{% endif %}

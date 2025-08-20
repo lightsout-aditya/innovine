@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+{% set user = app.user %}
+    <section>
+        <div class="bg-secondary border-top">
+            <div class="p-md-4 p-2">
+                <div class="text-center p-md-4 p-2">
+                    <h2 class="text-primary">My Orders</h2>
+                </div>
+            </div>
+        </div>
+        {% if orders | length %}
+            {% for order in orders %}
+            <div class="container order my-4">
+                <div class="card {{ order.status == 4 ? 'opacity-75' }}">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="fw-bold">Order # : <span class="text-primary">{{ order.orderNumber() }}</span></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2">
+                            <div class="col-md-8">
+                                <div class="d-flex">
+                                    <img src="{{ order.items.first.item.image ? (order.items.first.item.image | imagine_filter('sm')) : asset('images/default.png') }}" class="border ratio-1-1 object-fit-contain" width="150" alt>
+                                    <div class="ps-3">
+                                        <div class="fw-bold">{{ order.items.first.item.name }}
+                                            {% if (order.items | length) > 1 %}
+                                                <span class="text-primary"> +{{ (order.items | length) - 1 }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div>Order Date: <span>{{ order.createdAt | date('M d Y') }}</span></div>
+                                        {% set status = constant('App\\Entity\\Order::STATUS') %}
+                                        <div>Status: <span class="badge rounded-pill {{ order.status == 4 ? 'text-bg-danger' : 'text-bg-warning' }}">{{ status[order.status] }}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="fw-bold my-2">Total Price: ₹{{ order.total }}</div>
+                                {% if order.transaction %}
+                                    <div class="fw-bold my-2">Payment Mode : {{ order.transaction.paymentMode | upper }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if order.status > 1 %}
+                            {% include 'default/_invoice.html.twig' %}
+                        {% else %}
+                            {% include 'default/_order.html.twig' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {% else %}
+            <div class="text-center">
+                <div class="h5 pt-5">Your order is looking a bit empty! Visit our shop to find new items you might like.</div>
+                <a href="{{ path('products') }}"><div class="btn btn-secondary h5 px-5 py-3 mt-4 rounded-pill border-primary"><i class="fas fa-shopping-cart"></i> Start Shopping</div></a>
+            </div>
+        {% endif %}
+        <div class="navigation">
+            {{ knp_pagination_render(orders) }}
+        </div>
+    </section>
+    <div class="modal fade" id="returnModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="returnModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <form class="modal-content" id="orderReturn" action="{{ path('orderReturn') }}" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Return / Replace</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="form-floating mb-3">
+                            <input type="text" name="subject" class="form-control" id="subject" placeholder="name@example.com">
+                            <label for="subject">Subject</label>
+                        </div>
+                        <div class="form-floating">
+                            <textarea class="form-control" name="message" placeholder="Leave a comment here" id="message" style="height: 100px"></textarea>
+                            <label for="message">Message</label>
+                        </div>
+                        <div>
+                            <div class="my-3">
+                                <label for="attachment" class="form-label">Attachment<span class="text-danger">*</span></label>
+                                <input class="form-control img validate" value="" name="attachment" type="file" required accept=".jpg,.png,.jpeg" id="attachment">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="alert d-none my-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="order" id="orderInput" readonly>
+                    <input type="hidden" name="token" value="{{ csrf_token('orderReturn') }}"/>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary return">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

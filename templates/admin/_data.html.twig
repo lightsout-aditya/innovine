@@ -1,0 +1,10 @@
+{% if field.value|length %}
+    <table class="table table-bordered">
+        {% for row in field.value %}
+            <tr>
+                <th>{{ row.key }}</th>
+                <td>{{ row.value }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}

@@ -1,0 +1,15 @@
+{% if carts | length %}
+    <div class="d-flex justify-content-between">
+        <div class="h6">Total <span class="text-muted">({{ carts | length }} items)</span></div>
+        {% set total = 0 %}
+        {% for cart in carts %}
+            {% set total = total + cart.total %}
+        {% endfor %}
+        <div class="h6">{{ total|format_currency('INR', {fraction_digit: 2}) }}</div>
+    </div>
+    <div class="small text-muted">Shipping and taxes will be calculated at checkout</div>
+    <div class="d-flex justify-content-between mt-2">
+        <a href="{{ path('products') }}" class="btn btn-secondary px-2 px-sm-4">Continue Shopping</a>
+        <a href="{{ path('checkout') }}" class="btn btn-primary px-2 px-sm-4">Checkout</a>
+    </div>
+{% endif %}

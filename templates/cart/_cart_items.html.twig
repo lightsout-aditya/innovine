@@ -1,0 +1,44 @@
+{% if carts | length %}
+    {% for cart in carts %}
+        {% set inStock = cart.item.inStock(cart.quantity, carts) %}
+        <div class="card cart-item mb-3 {{ not inStock ? 'opacity-50' }} {{ cart.parent ? 'bg-success-subtle' }}" data-item="{{ cart.item.slug }}">
+            <div class="d-flex g-0">
+                {% if cart.parent is null %}
+                    <div class="position-absolute top-0 end-0 w-auto delete-cart" data-url="{{ path('cartDelete', {'id' : cart.item.slug}) }}">
+                        <i class="fas fa-trash-alt text-primary p-2"></i>
+                    </div>
+                {% endif %}
+                <div class="p-2">
+                    <img src="{{ cart.item.image ? (cart.item.image | imagine_filter('sm')) : asset('images/default.png') }}" class="border border-primary ratio-1-1 object-fit-contain" width="100" alt>
+                </div>
+                <div class="col">
+                    <div class="card-body">
+                        {% if not inStock %}
+                            <div class="badge bg-danger small"><i class="far fa-exclamation-triangle"></i> OUT OF STOCK</div>
+                        {% endif %}
+                        <div class="card-title">{{ cart.item.name }}</div>
+                        <div class="card-title">Price: {{ cart.item.price|format_currency('INR', {fraction_digit: 2}) }}</div>
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">Quantity: </div>
+                            {% if cart.parent or (cart.item.itemsMandatory|length) %}
+                                <span>{{ cart.quantity }}</span>
+                            {% else %}
+                                <div class="quantity-widget d-inline-flex" data-max="{{ env('MAX_QTY') }}">
+                                    <button class="btn btn-primary minus">−</button>
+                                    <input type="tel" maxlength="3" value="{{ cart.quantity }}" class="form-control p-0 qty-input text-center" autocomplete="off"/>
+                                    <button class="btn btn-primary plus">+</button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="d-flex h-100 flex-column justify-content-center align-items-center">
+        <div><img src="{{ asset('images/cart.svg') }}" height="200" alt></div>
+        <div class="my-3 fw-bold">Your shopping cart is empty.</div>
+        <a href="{{ path('products') }}" class="btn btn-dark px-4">Continue Shopping</a>
+    </div>
+{% endif %}

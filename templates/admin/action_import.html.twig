@@ -1,0 +1,49 @@
+<button class="action-import btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{ action.name }}Modal"><i class="fas fa-file-excel"></i> {{ action.label }}</button>
+<div class="modal fade" id="{{ action.name }}Modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button data-bs-dismiss="modal" class="btn btn-sm btn-secondary" formtarget="_self"><i class="fa fa-close"></i> Close</button>
+                <h5 class="modal-title">{{ action.label }}</h5>
+                {% set label = action.name|lower %}
+                {% if 'staffs' in label %}
+                    {% set fileName = 'staffs.xlsx' %}
+                {% endif %}
+                {% if fileName is defined %}
+                    <a href="{{ path('downloadSampleFormat',{'fileName' : fileName}) }}" class="btn btn-sm btn-primary" >Sample format</a>
+                {% endif %}
+            </div>
+            <div class="modal-body">
+                <form action="{{ action.linkUrl }}" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        {#{% if 'staffs' in label %}
+                            <div class="col-sm-12 mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select blank fetch-option auto" id="companySelect" name="company" required></select>
+                                    <label for="companySelect" class="select-label hide">Select Company</label>
+                                </div>
+                            </div>
+                        {% endif %}#}
+                        <div class="col-sm-12 mb-3">
+                            <label>Choose Excel File <input type="file" name="file" accept=".xls,.xlsx" required></label>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-import"><i class="fas fa-file-upload"></i> Import</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        const importModal = $('#{{ action.name }}Modal');
+        importModal.on( "submit", "form", function() {
+            const btnImport = $(this).find('.btn-import');
+            btnImport.prop('disabled', true).find('.fas').removeClass('fa-file-upload').addClass('fa-spinner fa-spin');
+        });
+    });
+</script>

@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Form;
+
+use App\EventSubscriber\ReCaptchaValidationListener;
+use ReCaptcha\ReCaptcha;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+/**
+ * Class ReCaptchaType.
+ */
+class ReCaptchaType extends AbstractType
+{
+    /**
+     * @var ReCaptcha
+     */
+    private ReCaptcha $reCaptcha;
+
+    /**
+     * ReCaptchaType constructor.
+     *
+     * @param ReCaptcha $reCaptcha
+     */
+    public function __construct(ReCaptcha $reCaptcha)
+    {
+        $this->reCaptcha = $reCaptcha;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $subscriber = new ReCaptchaValidationListener($this->reCaptcha);
+        $subscriber->setInvalidMessage($options['invalid_message']);
+        $builder->addEventSubscriber($subscriber);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildView(FormView $view, FormInterface $form, array $options): void
+    {
+        $view->vars['type'] = $options['type'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver
+            ->setDefault('type', 'checkbox')
+            ->setAllowedValues('type', ['checkbox', 'invisible']);
+
+        $resolver
+            ->setDefault('invalid_message', 'The captcha is invalid. Please try again.');
+    }
+}

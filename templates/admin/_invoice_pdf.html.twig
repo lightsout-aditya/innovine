@@ -1,0 +1,6 @@
+{% set items = field.value is iterable ? field.value : [entity.instance] %}
+{% for so in items %}
+    {% if so.pdf %}
+        <a href="{{ so.pdfWebPath }}" download="{{ so.invoiceNumber }}"><i class="fa-solid fs-6 fa-file-pdf text-danger"></i></a>
+    {% endif %}
+{% endfor %}

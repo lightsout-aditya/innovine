@@ -1,0 +1,80 @@
+{% if courierPartner == 'SaFex' %}
+    <div class="modal-header">
+        {% set error = response['shipment']['error'] %}
+        {% if not error %}
+            {% set status = response['shipment']['status'] %}
+        {% endif %}
+        <h1 class="modal-title fs-5" id="trackingModalModalLabel">Order Tracking {% if not error %}: <span class="badge rounded-pill text-bg-primary">{{ status }}{% endif %}</span></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        {% if not error %}
+            {% set trackings = response['shipment']['tracking'] %}
+            <table class="table table-responsive table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for ket, data in trackings %}
+                    <tr>
+                        <th>{{ data.date | date('Y-m-d') }}</th>
+                        <td>{{ data.description }}</td>
+                        <td>{{ data.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="text-center">
+                <div class="h5">Unfortunately, the tracking details for your shipment are currently unavailable. Please check back later. We apologize for any inconvenience.</div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+{% elseif courierPartner == 'BlueDart' %}
+        <div class="modal-header">
+        {% set error = response['ShipmentData']['Shipment'][0]['Scans'] is not defined %}
+        {% if not error %}
+            {% set shipment = response['ShipmentData']['Shipment'][0] %}
+            {% set status = shipment['Status'] %}
+        {% endif %}
+        <h1 class="modal-title fs-5" id="trackingModalModalLabel">Order Tracking {% if not error %}: <span class="badge rounded-pill text-bg-primary">{{ status }}{% endif %}</span></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        {% if not error %}
+            {% set trackings = shipment['Scans'] %}
+            <table class="table table-responsive table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Location</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for ket, data in trackings %}
+                    <tr>
+                        <th>{{ data.ScanDetail.ScanDate }} {{ data.ScanDetail.ScanTime }}</th>
+                        <td>{{ data.ScanDetail.Scan }}</td>
+                        <td>{{ data.ScanDetail.ScannedLocation }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="text-center">
+                <div class="h5">Unfortunately, the tracking details for your shipment are currently unavailable. Please check back later. We apologize for any inconvenience.</div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+{% endif %}

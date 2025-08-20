@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    {% if form.captcha is defined %}
+        {% include 'default/recaptcha_script.html.twig' %}
+    {% endif %}
+{% endblock %}
+{% block body %}
+    <section class="sign-up py-5 px-2">
+        <div class="card cm md overflow-hidden">
+            {% if form is defined %}
+                <div class="card-body px-0 px-sm-4 py-0 text-center">
+                    {{
+                    form_start(form, {
+                        'method': 'post',
+                        'action': app.request.pathInfo,
+                        'attr': {'autocomplete': 'off'}
+                    })
+                    }}
+                    <h4 class="text-primary pb-3">SIGN UP</h4>
+                    <div class="form-floating mb-3">
+                        {{ form_widget(form.firstName, {'attr': {'class': 'form-control', 'placeholder': 'First Name'}}) }}
+                        <label>First Name</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        {{ form_widget(form.lastName, {'attr': {'class': 'form-control', 'placeholder': 'Last Name'}}) }}
+                        <label>Last Name</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        {% set error = form_errors(form.email) %}
+                        {{ form_widget(form.email, {'attr': {'class': "form-control #{error ? 'is-invalid'}", 'placeholder': 'Email'}}) }}
+                        <label>Email</label>
+                        <div class="invalid-feedback">{{ error|striptags }}</div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        {% set error = form_errors(form.mobile) %}
+                        {{ form_widget(form.mobile, {'attr': {'class': "form-control #{error ? 'is-invalid'}", 'pattern' : '[6-9][0-9]{9}', 'maxlength' : 10, 'placeholder': 'Mobile'}}) }}
+                        <label>Mobile</label>
+                        <div class="invalid-feedback">{{ error|striptags }}</div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        {% set error = form_errors(form.plainPassword) %}
+                        {{ form_widget(form.plainPassword, {'attr': {'class': "form-control input-pass #{error ? 'is-invalid'}", 'placeholder': 'Password', 'autocomplete': 'new-password'}}) }}
+                        <label>Password</label>
+                        <div class="invalid-feedback">{{ error|striptags }}</div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" required="required" class="form-control input-again validate" data-again="input-pass" placeholder="Confirm Password" autocomplete="new-password">
+                        <label>Confirm Password</label>
+                        <div class="invalid-feedback">Passwords didn't match. Try again.</div>
+                    </div>
+                    <div class="mt-3 text-start">
+                        <div class="form-checkbox form-checkbox-inline">
+                            <input type="checkbox" id="agreeCheck" name="signup[agree]" class="form-check-input" required>
+                            <label class="form-check-label" for="agreeCheck">I agree to the</label>
+                            <a class="ps-1 pointer text-decoration-underline" target="_blank" href="{{ path('page', {'slug' : 'terms-condition'}) }}" {#data-bs-target="#termsOfUseModal" data-bs-toggle="modal"#}>Terms of use</a>
+                        </div>
+                    </div>
+                    {% if form.captcha is defined %}
+                        <div class="form-floating my-3">
+                            {{ form_row(form.captcha) }}
+                        </div>
+                    {% endif %}
+                    <div class="mt-3">
+                        {{ form_widget(form._token) }}
+                        <button class="btn btn-theme py-2 signup-btn" type="submit">Create Account</button>
+                    </div>
+                    <div class="mt-3">Have an account? <a href="{{ path('login') }}" class="text-decoration-underline">Sign in</a></div>
+                    {{ form_end(form, {'render_rest': false}) }}
+                </div>
+            {% else %}
+                <div class="card-body px-0 px-sm-4 py-0 text-center">
+                    <img src="{{ asset('images/logo.png') }}" class="img-fluid my-3" alt>
+                    <div class="text-dark h6 mb-4">The signup is invite only.</div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,135 @@
+<div class="accordion" id="accordionOrder">
+    <div class="accordion-item rounded overflow-hidden my-3">
+        <h2 class="accordion-header" id="order{{ loop.index }}-tab">
+            <button class="accordion-button title-hover collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#order{{ loop.index }}Tab" aria-expanded="false" aria-controls="order{{ loop.index }}Tab">
+                <span>View Details</span>
+            </button>
+        </h2>
+        <div id="order{{ loop.index }}Tab" class="accordion-collapse collapse" aria-labelledby="order{{ loop.index }}-tab" data-bs-parent="#accordionOrder">
+            <div class="accordion-body bg-accordion-body pt-0 px-md-2 px-0">
+                <div class="container book-status py-3">
+                    <div class="fw-bold py-2">Order Status: <span class="badge rounded-pill text-bg-primary">{{ status[order.status] }}</span></div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="step completed">
+                            <div class="step-circle"><span>{{ order.status > 0 ? '&#10003' : '1' }}</span></div>
+                        </div>
+                        <div class="progress" style="flex: 1;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ order.status > 1 ? '100' : (order.status == 1 ? '50' : '0') }}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="step active">
+                            <div class="step-circle"><span>{{ order.status > 1 ? '&#10003' : '2' }}</span></div>
+                        </div>
+                        <div class="progress" style="flex: 1;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ order.status > 3 ? '100' : (order.status == 3 ? '50' : '0') }}%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="step">
+                            <div class="step-circle"><span>{{ order.status > 3 ? '&#10003' : '3' }}</span></div>
+                        </div>
+                        <div class="progress" style="flex: 1;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ order.status > 4 ? '100' : (order.status == 4 ? '50' : '0') }}%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="step">
+                            <div class="step-circle"><span>{{ order.status > 4 ? '&#10003' : '4' }}</span></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="step completed">
+                            <div class="step-label">Order Placed</div>
+                        </div>
+                        <div class="step active">
+                            <div class="step-label">Processing</div>
+                        </div>
+                        <div class="step"> <div class="step-label">Out for Delivery</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-label">Delivered</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-md-2 row-cols-lg-3 p-3">
+                    {% if order.email or order.shippingPhone %}
+                        <div class="col my-2">
+                            <div class="fw-bold my-2">Contact Information</div>
+                            <div>{{ order.email }}</div>
+                            <div>{{ order.shippingPhone }}</div>
+                        </div>
+                    {% endif %}
+                    {% if order.shippingName or order.shippingAddress or order.shippingStreet or order.shippingState or order.shippingCity or order.shippingPincode %}
+                        <div class="col my-2">
+                            <div class="fw-bold my-2">Shipped To</div>
+                            <div>
+                                <div>{{ order.shippingName }}</div>
+                                {{ order.shippingAddress }}<br>{{ order.shippingStreet }}
+                                {{ order.shippingState }} {{ order.shippingCity }} {{ order.shippingPincode }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="col my-2">
+                        <div class="fw-bold my-2">Order Summary</div>
+                        {% if order.subtotal %}
+                            <div class="d-flex justify-content-between">
+                                <div>Item(s) Subtotal</div>
+                                <div>{{ order.subtotal|format_currency('INR', {fraction_digit: 2}) }}</div>
+                            </div>
+                        {% endif %}
+                        {% if order.shipping %}
+                            <div class="d-flex justify-content-between">
+                                <div>Shipping</div>
+                                <div>{{ order.shipping }}</div>
+                            </div>
+                        {% endif %}
+                        {% if order.tax %}
+                            {% for name, amount in order.tax %}
+                                <div class="d-flex justify-content-between">
+                                    <div>{{ name }}</div>
+                                    <div>{{ amount|round(2)|format_currency('INR', {fraction_digit: 2}) }}</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        {% if order.discount %}
+                            <div class="d-flex justify-content-between">
+                                <div>Promotion Applied</div>
+                                <div>{{ order.discount|format_currency('INR', {fraction_digit: 2}) }}</div>
+                            </div>
+                        {% endif %}
+                        {% if order.total %}
+                            <div class="d-flex justify-content-between">
+                                <div class="fw-bold">Grand Total</div>
+                                <div  class="fw-bold">{{ order.total|format_currency('INR', {fraction_digit: 2}) }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if (order.items | length) > 1 %}
+                    <div class="p-2">
+                        {% for orderItem in order.items %}
+                            {% set item = orderItem.item %}
+                            <div class="card mb-2">
+                                <div class="d-flex g-0">
+                                    <div class="p-2">
+                                        <img src="{{ item.image ? (item.image | imagine_filter('sm')) : asset('images/default.png') }}" class="border ratio-1-1 object-fit-contain" width="30" alt>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card-body p-2">
+                                            <div class="d-flex justify-content-between">
+                                                <a href="{{ path('productDetails', {'slug' : item.slug}) }}" target="_blank">
+                                                    <div class="card-title">
+                                                        {{ item.name }}
+                                                        {% if orderItem.quantity > 1 %}
+                                                            <span class="badge bg-primary">{{ orderItem.quantity }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </a>
+                                                <div><span class="badge text-bg-secondary">{{ orderItem.total |format_currency('INR', {fraction_digit: 2}) }}</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

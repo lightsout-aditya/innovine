@@ -1,0 +1,6 @@
+{% set salesOrders = field.value %}
+{% for salesOrder in salesOrders %}
+    {% include 'admin/_invoice.html.twig' %}
+{% else %}
+    <div>Invoice Pending</div>
+{% endfor %}

@@ -1,0 +1,45 @@
+{% set salesOrder = salesOrder is defined ? salesOrder %}
+{% if salesOrder %}
+    <div class="mb-4">
+        <div class="d-flex justify-content-between text-bg-primary p-1">
+            <h5 class="m-0">{{ salesOrder.soNumber }}</h5>
+            {% if salesOrder.invoices | length %}
+                {% for invoice in salesOrder.invoices %}
+                    <a href="{{ invoice.pdfWebPath }}"><i class="fa-solid fs-6 fa-file-pdf text-danger"></i></a>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <table class="table table-bordered">
+            <tr>
+                <th width="60%">Product</th>
+                <td width="10%">Quantity</td>
+                <th class="text-end" width="15%">Rate</th>
+                <th class="text-end" width="20%">Amount</th>
+            </tr>
+            {% for item in salesOrder.items %}
+                <tr>
+                    <th>{{ item }}</th>
+                    <td>{{ item.quantity }}</td>
+                    <td class="text-end">{{ item.price|format_currency('INR', {fraction_digit: 2}) }}</td>
+                    <td class="text-end">{{ item.total|format_currency('INR', {fraction_digit: 2}) }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <th colspan="3">Subtotal</th>
+                <td class="text-end">{{ salesOrder.subtotal|format_currency('INR', {fraction_digit: 2}) }}</td>
+            </tr>
+            <tr>
+                <th colspan="3">Shipping</th>
+                <td class="text-end">{{ salesOrder.shipping|format_currency('INR', {fraction_digit: 2}) }}</td>
+            </tr>
+            <tr>
+                <th colspan="3">Tax</th>
+                <td class="text-end">{{ salesOrder.tax|format_currency('INR', {fraction_digit: 2}) }}</td>
+            </tr>
+            <tr>
+                <th colspan="3">Total</th>
+                <th class="text-end">{{ salesOrder.total|format_currency('INR', {fraction_digit: 2}) }}</th>
+            </tr>
+        </table>
+    </div>
+{% endif %}

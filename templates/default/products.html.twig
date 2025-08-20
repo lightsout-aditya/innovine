@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block extra_javascripts %}
+{% endblock %}
+
+{% block body %}
+    <form class="container text-center search-form my-5 col-sm-6" method="get">
+        <div class="input-group mb-3">
+            <input type="text" name="s" class="form-control border-primary" placeholder="Search Product">
+            <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+        </div>
+    </form>
+
+    {% set searchTerm = app.session.get('searchTerm') %}
+    <div class="container d-flex justify-content-between mx-width-1140">
+        {% if searchTerm %}
+            <div class="ms-2 text-primary border-left ps-2 mb-4 fw-bold">Found {{ products|length }} Result(s): <span class="btn btn-outline-primary clear-search">{{ searchTerm }} <i class="fas fa-times ms-1"></i> </span></div>
+        {% endif %}
+    </div>
+    <section class="bg-tertiary">
+        <div class="container py-3">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 align-items-center">
+                <div class="fw-bold text-nowrap w-100">
+                    <i class="far fa-filter"></i> Filters:
+                </div>
+                {% if categories | length %}
+                    <div class="col">
+                        <div class="form-floating">
+                            <select class="form-select filter-select" id="categorySelect">
+                                <option value="{{ path('products') }}">All</option>
+                                {% for category in categories %}
+                                    <option value="{{ path('productsCategory', {'category' : category.slug}) }}" {{ category.slug == app.request.get('category') ? 'selected' }}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="categorySelect">Category</label>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if grades | length %}
+                    <div class="col">
+                        <div class="form-floating">
+                            <select class="form-select filter-select" id="gradeSelect">
+                                <option value="{{ path('products') }}">All</option>
+                                {% for grade in grades %}
+                                    <option value="{{ path('productsGrade', {'grade' : grade.slug}) }}" {{ grade.slug == app.request.get('grade') ? 'selected' }}>{{ grade.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="gradeSelect">Grade</label>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="col">
+                    <div class="form-floating">
+                        <select class="form-select filter-gender" id="genderSelect" data-url="{{ app.request.uri }}">
+                            <option value="0">Both</option>
+                            <option value="1" {{ app.session.get('filterGender') == 1 ? 'selected' }}>Boys</option>
+                            <option value="2" {{ app.session.get('filterGender') == 2 ? 'selected' }}>Girls</option>
+                        </select>
+                        <label for="genderSelect">Gender</label>
+                    </div>
+                </div>
+                {% if schools | length %}
+                    <div class="col">
+                        <div class="form-floating">
+                            <select class="form-select filter-select" id="schoolSelect">
+                                <option value="{{ path('products') }}">Birla Open Minds</option>
+                                {% for school in schools %}
+                                    <option value="{{ path('productsSchool', {'school' : school.slug}) }}" {{ school.slug == app.request.get('school') ? 'selected' }}>{{ school.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="schoolSelect">School</label>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    {% if products|length %}
+        <section class="bg-tertiary">
+            <div class="container pt-3">
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+                    {% for product in products %}
+                        {% set product = product[0] %}
+                        {% if product.price %}
+                            {% include 'default/_product-block.html.twig' %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="navigation">
+                    {{ knp_pagination_render(products) }}
+                </div>
+            </div>
+        </section>
+    {% else %}
+        <section>
+            <div class="container py-5 h6">No result found.</div>
+        </section>
+    {% endif %}
+{% endblock %}

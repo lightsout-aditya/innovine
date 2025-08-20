@@ -1,0 +1,11 @@
+{% set roles = constant('App\\Entity\\User::ROLES') %}
+{% set role = roles[field.value]|default('USER') %}
+{% if role == "SUPER ADMIN" %}
+    <span class="badge bg-success text-white">{{ role }}</span>
+{% elseif role == "ADMIN" %}
+    <span class="badge bg-warning text-black">{{ role }}</span>
+{% elseif role == "MANAGER" %}
+    <span class="badge bg-info text-white">{{ role }}</span>
+{% else %}
+    <span class="badge bg-primary text-white">{{ role }}</span>
+{% endif %}

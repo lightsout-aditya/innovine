@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="py-5 px-3">
+    <div class="card cm sm">
+        <div class="card-body px-0 px-sm-4 py-0 text-center">
+            <div class="login-box">
+                {% include 'security/_login_form.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

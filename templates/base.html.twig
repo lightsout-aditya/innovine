@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+{% set route = app.request.get('_route') %}
+{% set showPrice = app.user or env('PRICE_PUBLIC') %}
+<head>
+    {{ render(controller('App\\Controller\\DefaultController::meta', {'route' : route, 'uri' : app.request.uri})) }}
+    {% block stylesheets %}
+        <link href='https://pro.fontawesome.com/releases/v5.15.4/css/all.css' rel='stylesheet' type='text/css'>
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+    {% block javascripts %}
+        {#{% if app.user and (not app.user.emailVerified or not app.user.mobileVerified) and route != 'profile' %}
+            <script>location.href='{{ path('profile') }}'</script>
+        {% endif %}#}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+    {% block extra_javascripts %}{% endblock %}
+    {% include 'common/snippet.html.twig' %}
+</head>
+    <body>
+    {% include 'common/snippet_noscript.html.twig' %}
+    {% if is_granted('IS_IMPERSONATOR') %}
+        <div class="text-center text-uppercase bg-danger w-100 sticky-top top-0 start-0 small z-3">
+            <a href="{{ impersonation_exit_path(path('admin') ) }}" class="small text-white text-decoration-none">Exit impersonation</a>
+        </div>
+    {% endif %}
+    {% block header %}
+        {{ render(controller('App\\Controller\\DefaultController::header', {'route' : route})) }}
+    {% endblock %}
+    <main>
+        {% if app.request.hasPreviousSession %}
+            <div class="container text-center">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success m-2">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger m-2">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block body %}{% endblock %}
+    </main>
+    {% block footer %}
+        {{ render(controller('App\\Controller\\DefaultController::footer')) }}
+    {% endblock %}
+    </body>
+</html>

@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <section>
+        <div class="bg-secondary">
+            <div class="p-md-5 p-2 pb-5">
+                <div class="text-center p-md-5 p-2 pb-5">
+                    <div class="text-primary h1">Shopping Cart</div>
+                </div>
+            </div>
+        </div>
+        <div class="cart-box container mx-width-1140 m-auto bg-white mt-n5 p-4 pb-5">
+            {% include 'cart/_cart.html.twig' %}
+        </div>
+    </section>
+{% endblock %}

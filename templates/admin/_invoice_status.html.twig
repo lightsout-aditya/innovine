@@ -1,0 +1,12 @@
+{% set status = status is defined ? status : field.value %}
+{% if status == 4 %}
+    <span class="badge bg-success text-white text-uppercase">DELIVERED</span>
+{% elseif status == 3 %}
+    <span class="badge bg-warning text-white text-uppercase">OUT FOR DELIVERY</span>
+{% elseif status == 2 %}
+    <span class="badge bg-info text-white text-uppercase">SHIPPED</span>
+{% elseif status == 1 %}
+    <span class="badge bg-primary text-white text-uppercase">SENT</span>
+{% else %}
+    <span class="badge bg-danger text-white text-uppercase">INVOICED</span>
+{% endif %}

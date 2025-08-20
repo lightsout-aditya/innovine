@@ -1,0 +1,19 @@
+{% if field.value %}
+    {% set extension = field.value|split('.')|last %}
+    {% set file = field.formattedValue %}
+    {% if extension in ['pdf'] %}
+        <a href="{{ asset(file) }}" target="_blank"><i class="fas fa-file-pdf fa-3x text-danger"></i></a>
+    {% elseif extension in ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'] %}
+        <a href="{{ asset(file) }}" target="_blank"><i class="fas fa-file-alt fa-3x text-success"></i></a>
+    {% elseif extension in ['mp4', 'avi', 'wmv', 'mov'] %}
+        <a href="{{ asset(file) }}" target="_blank"><i class="fas fa-file-video fa-3x text-primary"></i></a>
+    {% else %}
+        <a href="#" class="ea-lightbox-thumbnail" data-ea-lightbox-content-selector="#ea-lightbox-{{ field.uniqueId }}">
+            <img src="{{ file|replace({'uploads/':''}) | imagine_filter('xs') }}" class="img-fluid">
+        </a>
+        <div id="ea-lightbox-{{ field.uniqueId }}" class="ea-lightbox">
+            <img src="{{ asset(file) }}">
+        </div>
+        <div><a href="{{ asset(file) }}" class="my-1 mx-2 link-primary" download>Download</a></div>
+    {% endif %}
+{% endif %}

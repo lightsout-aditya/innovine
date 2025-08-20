@@ -1,0 +1,20 @@
+<div class="col">
+    <div class="card h-100 card-shadow border-0">
+        <a href="{{ path('productDetails', {'slug' : product.slug}) }}">
+            <div class="p-3">
+                <div class="border overflow-hidden">
+                    <img src="{{ product.image ? (product.image | imagine_filter('sm')) : asset('images/default.png') }}" class="product-img w-100 h-100 ratio-1-1 object-fit-contain" alt>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <div class="text-truncate">{{ product.group ? product.group : product }}</div>
+            </div>
+        </a>
+        <div class="card-footer bg-white">
+            <div class="d-flex {{ showPrice ? 'justify-content-between' : 'justify-content-center' }} align-items-center">
+                <span>{{ showPrice ? product.price|format_currency('INR', {fraction_digit: 0}) }}</span>
+                {% include('default/_cart_button.html.twig') %}
+            </div>
+        </div>
+    </div>
+</div>
