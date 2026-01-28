@@ -31,6 +31,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+
 
 class CustomerCrudController extends AbstractCrudController
 {
@@ -122,6 +124,10 @@ class CustomerCrudController extends AbstractCrudController
             TextField::new('location')->setColumns(12),
             TextField::new('pan')->setColumns(12)->hideOnIndex(),
             TextField::new('gstNumber')->setColumns(12)->hideOnIndex(),
+            AssociationField::new('school')
+    ->setLabel('School')
+    ->setColumns(12),
+
 
             FormField::addPanel('Authorization')->addCssClass('col-sm-6'),
             TextField::new('plainPassword')->setColumns(12)->setFormType(PasswordType::class)->setLabel('Password')->setRequired(Crud::PAGE_NEW === $pageName)->onlyOnForms(),

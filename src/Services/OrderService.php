@@ -22,6 +22,7 @@ final readonly class OrderService
         private ManagerRegistry $doctrine,
         private ParameterBagInterface $parameterBag,
         private ZohoService $zoho,
+        private LogicErpService $logicErp, // <--- Add this line
         private MessageService $messageService
     ){}
 
@@ -31,7 +32,13 @@ final readonly class OrderService
         foreach($items as $item){
             $total += $item['rate'] * $item['quantity'];
         }
-        return round(($total*100/$order->getSubtotal())*($order->getShipping())/100,2);
+        
+        // Fix: Check if subtotal is greater than 0 to avoid DivisionByZeroError
+        if ($order->getSubtotal() > 0) {
+            return round(($total * 100 / $order->getSubtotal()) * ($order->getShipping()) / 100, 2);
+        }
+        
+        return 0;
     }
 
     public function createOrder(Transaction $transaction): Order
@@ -181,8 +188,16 @@ final readonly class OrderService
                     ];
                     //dd(json_encode($params));
                     //var_dump($params);
-                    $response = $this->zoho->createSalesOrder($params);
+                    // $response = $this->zoho->createSalesOrder($params); // Comment out Zoho
+                    $response = $this->logicErp->createSalesOrder($params); // Add Logic ERP                    
                     if ($so = $response['salesorder'] ?? null) {
+
+                    if (empty($so['salesorder_id'])) {
+                        return [
+                            'success' => false, 
+                            'message' => 'Error: Logic ERP returned an invalid Sales Order ID (0 or null)'
+                        ];
+                    }
                         $salesOrder = new SalesOrder();
                         $salesOrder->setOrder($order);
                         $salesOrder->setSoNumber($so['salesorder_number']);
@@ -335,75 +350,99 @@ final readonly class OrderService
         return ['success' => $success, 'message' => $message];
     }
 
-    public function confirmSalesOrder(SalesOrder $salesOrder): array
+   public function confirmSalesOrder(SalesOrder $salesOrder): array
     {
-        $success = false;
-        $message = "Error while Confirming sales Order";
-        if ($_ENV['ZOHO_SYNC']) {
-            if($zohoId = $salesOrder->getZohoId()) {
-                $res = $this->zoho->updateSalesOrderStatus($zohoId);
-                if($errors = $res['data']['errors']??null){
-                    $message = '';
-                    foreach ($errors as $error){
-                        $message .= "<div>{$error['message']}</div>";
-                    }
-                }
-                $success = !$errors && !$res['code'];
-                if($success){
-                    $this->sendSalesOrder($salesOrder);
-                }
-                $message = $errors ? $message : $res['message'];
-            }
-        }
+        $success = true; // Default to true since we don't need to "confirm" via API in Logic ERP
+        $message = "Sales Order Confirmed";
 
+        // 1. OPTIONAL: Call Logic ERP status update if they support it
+        // if ($_ENV['LOGIC_SYNC']) {
+        //      $res = $this->logicErp->updateSalesOrderStatus($salesOrder->getZohoId(), 'confirmed');
+        // }
+
+        // 2. Send Email using Local MessageService (Recommended)
+        // Since we can't use Zoho to send email anymore, use your internal mailer
+        // You'll need to create a template for 'sales-order-confirmation'
+        $params = [
+            'ORDER_NUMBER' => $salesOrder->getSoNumber(),
+            'CUSTOMER_NAME' => $salesOrder->getOrder()->getCustomer()->getName(),
+            // ... add other params ...
+        ];
+        // $this->messageService->sendMailTemplate('sales-order-confirmation', $params, null, $salesOrder->getOrder()->getEmail());
+
+        // 3. Update Database Status
         if($success){
             $em = $this->doctrine->getManager();
             $salesOrder->setStatus(SalesOrder::CONFIRMED);
             $em->persist($salesOrder);
+            
             $order = $salesOrder->getOrder();
             $order->setStatus(Order::PROCESSING);
             $em->persist($order);
+            
             $em->flush();
         }
+        
         return ['success' => $success, 'message' => $message];
     }
 
     public function cancelOrder(Order $order): array
     {
         $success = false;
-        $message[] = "Error while Cancelling Order";
+        $message = []; // Initialize as array
         $em = $this->doctrine->getManager();
-        if ($_ENV['ZOHO_SYNC'] and $salesOrders = $order->getSalesOrders() and $salesOrders->count()) {
-            $message = [];
+
+        // Check if there are linked SalesOrders
+        if ($salesOrders = $order->getSalesOrders() and $salesOrders->count()) {
             foreach ($salesOrders as $salesOrder) {
-                if($zohoId = $salesOrder->getZohoId()) {
-                    $res = $this->zoho->voidSalesOrder($zohoId);
-                    if($errors = $res['data']['errors']??null){
-                        foreach ($errors as $error){
-                            $message[] = "<div>{$error['message']}</div>";
-                        }
-                    }else{
+                // Check if we have a Logic ERP ID (stored in zohoId column)
+                if ($logicId = $salesOrder->getZohoId()) {
+                    
+                    // --- NEW LOGIC ERP CALL ---
+                    // We pass ID, SO Number, and the Items Collection
+                    $res = $this->logicErp->cancelSalesOrder(
+                        $logicId, 
+                        $salesOrder->getSoNumber(), 
+                        $salesOrder->getItems()
+                    );
+                    // --------------------------
+
+                    if ($res['code'] === 0) { // 0 usually means success in your service wrapper
                         $message[] = $res['message'];
                         $salesOrder->setStatus(SalesOrder::VOID);
                         $em->persist($salesOrder);
+                        $success = true;
+                    } else {
+                         // Extract error message
+                        $errorMsg = $res['message'];
+                        if (isset($res['data']['errors'])) {
+                             foreach($res['data']['errors'] as $err) {
+                                 $errorMsg .= " " . ($err['message'] ?? '');
+                             }
+                        }
+                        $message[] = "<div>$errorMsg</div>";
+                        $success = false;
                     }
-                    $success = !$errors && !$res['code'];
                 }
             }
-        }elseif (!$order->getSalesOrders()->count()){
+        } elseif (!$order->getSalesOrders()->count()) {
+            // No sales orders linked, just cancel local order
             $success = true;
-            $message = ["Order Cancelled"];
+            $message[] = "Order Cancelled locally";
         }
 
-        if($success){
+        if ($success) {
             $order->setStatus(Order::CANCELLED);
             $em->persist($order);
             $em->flush();
+            
             $params = [
                 'ORDER_NUMBER' => $order->getOrderNumber(),
             ];
+            // Send email
             $this->messageService->sendMailTemplate('on-order-cancelled', $params, null, $order->getEmail());
         }
+
         return ['success' => $success, 'message' => implode("<br>", $message)];
     }
 
@@ -432,8 +471,8 @@ final readonly class OrderService
                 //$cc = $setting?->getInvoiceCc()??[];
                 $customer = $salesOrder->getOrder()->getCustomer();
                 $email = $this->getAllEmail($salesOrder->getOrder()->getEmail(), $customer);
-                $subject = "Sales Order #{$salesOrder->getSoNumber()} from Innovine Solutions";
-                $body = "<p>Dear {$customer->getName()},</p><p>Thanks for your interest in our services. Please find our sales order attached with this mail.</p><p>An overview of the sales order is available below for your reference:</p><p>Sales Order # : {$salesOrder->getSoNumber()}<br>Order Date : {$salesOrder->getCreatedAt()->format('d/m/Y')}<br>Amount : Rs.".(number_format($salesOrder->getTotal(), 2))."</p><p>Assuring you of our best services at all times.</p><p>Regards,<br>Innovine Solutions</p>";
+                $subject = "Sales Order #{$salesOrder->getSoNumber()} from Innovine Universal Solutions Pvt. Ltd.";
+                $body = "<p>Dear {$customer->getName()},</p><p>Thanks for your interest in our services. Please find our sales order attached with this mail.</p><p>An overview of the sales order is available below for your reference:</p><p>Sales Order # : {$salesOrder->getSoNumber()}<br>Order Date : {$salesOrder->getCreatedAt()->format('d/m/Y')}<br>Amount : Rs.".(number_format($salesOrder->getTotal(), 2))."</p><p>Assuring you of our best services at all times.</p><p>Regards,<br>Innovine Universal Solutions Pvt. Ltd.</p>";
                 $res = $this->zoho->emailSalesOrder($zohoId, $email, $subject, $body);
                 $success = !$res['code'];
                 $message = $res['message'];

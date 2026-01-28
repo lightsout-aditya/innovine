@@ -170,6 +170,13 @@ class DefaultController extends AbstractController
         }
 
         $em = $this->doctrine->getManager();
+        $user = $this->getUser();
+$customerSchool = null;
+
+if ($user instanceof \App\Entity\User) {
+    $customerSchool = $user->getSchool();
+}
+
         $query = $em->createQueryBuilder()->select('i, IFNULL(i.group, UUID_SHORT()) as uid')
             ->from(Item::class, 'i')
             ->where('i.active = :active')
@@ -205,12 +212,20 @@ class DefaultController extends AbstractController
                 ->setParameter('grade', $grade)
             ;
         }
-        if ($school){
-            $school = $em->getRepository(School::class)->findOneBy(['slug' => $school, 'active' => true]);
-            $query->andWhere(':school MEMBER OF i.schools')
-                ->setParameter('school', $school)
-            ;
+        // if ($school){
+        //     $school = $em->getRepository(School::class)->findOneBy(['slug' => $school, 'active' => true]);
+        //     $query->andWhere(':school MEMBER OF i.schools')
+        //         ->setParameter('school', $school)
+        //     ;
+        // }
+
+        // 🔒 FORCE school-based visibility for logged-in customers
+        if ($customerSchool) {
+        $query
+        ->andWhere(':customerSchool MEMBER OF i.schools')
+        ->setParameter('customerSchool', $customerSchool);
         }
+
 
         $qb = $query->getQuery();
         $pagination = $paginator->paginate(

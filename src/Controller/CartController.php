@@ -373,7 +373,7 @@ class CartController extends AbstractController
                     try {
                         //Generate SalesOrder in Draft mode
                         $em->refresh($order);
-                        $this->orderService->generateSalesOrder($order);
+                        // $this->orderService->generateSalesOrder($order);
                     }catch (\Exception){}
 
                     return new JsonResponse(['success' => true, 'redirect' => $this->generateUrl('paymentSuccess')]);
@@ -498,7 +498,7 @@ class CartController extends AbstractController
                         try {
                             //Generate SalesOrder in Draft mode
                             $em->refresh($order);
-                            $this->orderService->generateSalesOrder($order);
+                            // $this->orderService->generateSalesOrder($order);
                         }catch (\Exception){}
 
                         return $this->redirectToRoute('paymentSuccess');

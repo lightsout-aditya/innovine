@@ -121,6 +121,7 @@ class SalesOrderCrudController extends AbstractCrudController
     {
         /** @var SalesOrder $salesOrder */
         $salesOrder = $context->getEntity()->getInstance();
+        
         $result = $this->orderService->sendSalesOrder($salesOrder);
         $this->addFlash($result['success'] ? 'success' : 'danger', $result['message']);
 
