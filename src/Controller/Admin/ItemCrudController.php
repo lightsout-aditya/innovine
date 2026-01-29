@@ -102,6 +102,11 @@ class ItemCrudController extends AbstractCrudController
             TextareaField::new('description')->hideOnIndex(),
             ChoiceField::new('unit')->setChoices(['pcs' => 'pcs', 'kg' => 'kg', 'box' => 'box'])->setDisabled($isEdit)->hideOnIndex(),
             TextField::new('sku', 'SKU')->setRequired(true)->setDisabled($isEdit),
+            
+            // --- NEW ITEM CODE FIELD ---
+            TextField::new('itemCode', 'Item Code')->setDisabled($isEdit),
+            // ---------------------------
+            
             TextField::new('hsnCode', 'HSN Code')->setDisabled($isEdit),
             NumberField::new('size')->setDisabled($isEdit)->hideOnIndex(),
             AssociationField::new('group')->setDisabled($isEdit),

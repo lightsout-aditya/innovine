@@ -10,15 +10,36 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity]
 #[UniqueEntity(fields: ['name'], message: 'This name is already in use.')]
+#[UniqueEntity(fields: ['schoolCode'], message: 'This School Code is already in use.')]
 class School
 {
+    public const BRANDS = [
+        'BOMIS' => 'BOMIS',
+        'BOMPS' => 'BOMPS',
+        'GBMS' => 'GBMS',
+        'BCPGIS' => 'BCPGIS',
+        'BOMT' => 'BOMT',
+        'COCO' => 'COCO',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(length: 63, unique: true)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $name;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $schoolCode = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $brandCode = null;
+
+    // --- NEW ZONE FIELD START ---
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $zone = null;
+    // --- NEW ZONE FIELD END ---
 
     #[Gedmo\Slug(fields: ['name'])]
     #[ORM\Column(unique: true)]
@@ -34,6 +55,7 @@ class School
     {
         $this->items = new ArrayCollection();
     }
+    
     public function __toString()
     {
         return $this->name;
@@ -52,9 +74,43 @@ class School
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
+
+    public function getSchoolCode(): ?string
+    {
+        return $this->schoolCode;
+    }
+
+    public function setSchoolCode(?string $schoolCode): static
+    {
+        $this->schoolCode = $schoolCode;
+        return $this;
+    }
+
+    public function getBrandCode(): ?string
+    {
+        return $this->brandCode;
+    }
+
+    public function setBrandCode(?string $brandCode): static
+    {
+        $this->brandCode = $brandCode;
+        return $this;
+    }
+
+    // --- NEW GETTER/SETTER FOR ZONE ---
+    public function getZone(): ?string
+    {
+        return $this->zone;
+    }
+
+    public function setZone(?string $zone): static
+    {
+        $this->zone = $zone;
+        return $this;
+    }
+    // ----------------------------------
 
     public function getSlug(): ?string
     {
@@ -64,7 +120,6 @@ class School
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
-
         return $this;
     }
 
@@ -76,7 +131,6 @@ class School
     public function setActive(bool $active): static
     {
         $this->active = $active;
-
         return $this;
     }
 
@@ -93,14 +147,12 @@ class School
         if (!$this->items->contains($item)) {
             $this->items->add($item);
         }
-
         return $this;
     }
 
     public function removeItem(Item $item): static
     {
         $this->items->removeElement($item);
-
         return $this;
     }
 }

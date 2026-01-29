@@ -177,16 +177,19 @@ if ($user instanceof \App\Entity\User) {
     $customerSchool = $user->getSchool();
 }
 
-        $query = $em->createQueryBuilder()->select('i, IFNULL(i.group, UUID_SHORT()) as uid')
+        $query = $em->createQueryBuilder()
+            ->select('i') // Select the entity
+            ->addSelect('IFNULL(i.group, UUID_SHORT()) as uid') // Keep your custom UID
             ->from(Item::class, 'i')
             ->where('i.active = :active')
             ->andWhere('i.showInPortal = :showInPortal')
-            //->groupBy('i.group')
-            ->groupBy('uid')
+            // FIX: Group by the Entity ID first to satisfy ONLY_FULL_GROUP_BY
+            // then group by your custom field if necessary
+            ->groupBy('i.id') 
+            ->addGroupBy('uid') 
             ->orderBy('CASE WHEN i.actualAvailableForSaleStock <= 0 THEN 1 ELSE 0 END')
             ->addOrderBy('i.comboProduct', 'DESC')
             ->addOrderBy('i.name')
-            //->orderBy('i.position', 'DESC')
             ->setParameter('active', true)
             ->setParameter('showInPortal', true)
         ;

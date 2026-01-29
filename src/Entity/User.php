@@ -137,6 +137,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 #[ORM\JoinColumn(nullable: true)]
 private ?School $school = null;
 
+    
 
     # Unmapped
     private $sendEmail = true;

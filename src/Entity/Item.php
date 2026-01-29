@@ -37,6 +37,11 @@ class Item
     #[ORM\Column(length: 31, nullable: true)]
     private $zohoId;
 
+    // --- NEW FIELD START ---
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $itemCode = null;
+    // --- NEW FIELD END ---
+
     #[ORM\ManyToOne(targetEntity: ItemCategory::class)]
     private $category;
 
@@ -267,6 +272,19 @@ class Item
 
         return $this;
     }
+
+    // --- NEW GETTER & SETTER ---
+    public function getItemCode(): ?string
+    {
+        return $this->itemCode;
+    }
+
+    public function setItemCode(?string $itemCode): static
+    {
+        $this->itemCode = $itemCode;
+        return $this;
+    }
+    // ---------------------------
 
     public function getName(): ?string
     {

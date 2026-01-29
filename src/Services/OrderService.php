@@ -160,7 +160,7 @@ final readonly class OrderService
                         //"salesorder_number" => $order->orderNumber(),
                         "date" => $order->getCreatedAt()->format('Y-m-d'),
                         //"shipment_date" => "2015-06-02",
-                        "reference_number" => "{$_ENV['HOST']} Order #{$order->getId()}",
+                        "reference_number" => "SO-{$order->getId()}",
                         //"terms" => "100% Advance",
                         "payment_terms" => 0,
                         "payment_terms_label" => "100% Advance",
